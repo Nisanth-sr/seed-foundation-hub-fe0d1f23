@@ -323,26 +323,29 @@ function Stories() {
           <h2 className="max-w-3xl text-3xl font-bold md:text-4xl">Real transformations, told by the people who lived them.</h2>
         </div>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {stories.map((s) => {
-            const ref = useReveal<HTMLElement>();
-            return (
-              <article key={s.title} ref={ref} className="reveal card-hover group flex flex-col overflow-hidden rounded-2xl border border-border bg-card">
-                <div className="aspect-[4/3] overflow-hidden">
-                  <img src={s.img} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                </div>
-                <div className="flex flex-col gap-2 p-5">
-                  <span className="text-xs font-semibold uppercase tracking-widest text-primary">{s.tag}</span>
-                  <h4 className="text-lg font-semibold">{s.title}</h4>
-                  <p className="text-sm leading-relaxed text-muted-foreground">{s.body}</p>
-                </div>
-              </article>
-            );
-          })}
+          {stories.map((s) => <StoryCard key={s.title} {...s} />)}
         </div>
       </div>
     </section>
   );
 }
+
+function StoryCard({ img, tag, title, body }: { img: string; tag: string; title: string; body: string }) {
+  const ref = useReveal<HTMLElement>();
+  return (
+    <article ref={ref} className="reveal card-hover group flex flex-col overflow-hidden rounded-2xl border border-border bg-card">
+      <div className="aspect-[4/3] overflow-hidden">
+        <img src={img} alt="" loading="lazy" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+      </div>
+      <div className="flex flex-col gap-2 p-5">
+        <span className="text-xs font-semibold uppercase tracking-widest text-primary">{tag}</span>
+        <h4 className="text-lg font-semibold">{title}</h4>
+        <p className="text-sm leading-relaxed text-muted-foreground">{body}</p>
+      </div>
+    </article>
+  );
+}
+
 
 // ---------- Resources ----------
 function Resources() {
