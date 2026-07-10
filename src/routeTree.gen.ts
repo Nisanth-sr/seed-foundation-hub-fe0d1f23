@@ -9,38 +9,92 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as CareerRouteImport } from './routes/career'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CareerIndexRouteImport } from './routes/career.index'
+import { Route as CareerResetPasswordRouteImport } from './routes/career.reset-password'
+import { Route as CareerAuthRouteImport } from './routes/career.auth'
 
+const CareerRoute = CareerRouteImport.update({
+  id: '/career',
+  path: '/career',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CareerIndexRoute = CareerIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CareerRoute,
+} as any)
+const CareerResetPasswordRoute = CareerResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => CareerRoute,
+} as any)
+const CareerAuthRoute = CareerAuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => CareerRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/career': typeof CareerRouteWithChildren
+  '/career/auth': typeof CareerAuthRoute
+  '/career/reset-password': typeof CareerResetPasswordRoute
+  '/career/': typeof CareerIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/career/auth': typeof CareerAuthRoute
+  '/career/reset-password': typeof CareerResetPasswordRoute
+  '/career': typeof CareerIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/career': typeof CareerRouteWithChildren
+  '/career/auth': typeof CareerAuthRoute
+  '/career/reset-password': typeof CareerResetPasswordRoute
+  '/career/': typeof CareerIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/career'
+    | '/career/auth'
+    | '/career/reset-password'
+    | '/career/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/career/auth' | '/career/reset-password' | '/career'
+  id:
+    | '__root__'
+    | '/'
+    | '/career'
+    | '/career/auth'
+    | '/career/reset-password'
+    | '/career/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CareerRoute: typeof CareerRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/career': {
+      id: '/career'
+      path: '/career'
+      fullPath: '/career'
+      preLoaderRoute: typeof CareerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +102,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/career/': {
+      id: '/career/'
+      path: '/'
+      fullPath: '/career/'
+      preLoaderRoute: typeof CareerIndexRouteImport
+      parentRoute: typeof CareerRoute
+    }
+    '/career/reset-password': {
+      id: '/career/reset-password'
+      path: '/reset-password'
+      fullPath: '/career/reset-password'
+      preLoaderRoute: typeof CareerResetPasswordRouteImport
+      parentRoute: typeof CareerRoute
+    }
+    '/career/auth': {
+      id: '/career/auth'
+      path: '/auth'
+      fullPath: '/career/auth'
+      preLoaderRoute: typeof CareerAuthRouteImport
+      parentRoute: typeof CareerRoute
+    }
   }
 }
 
+interface CareerRouteChildren {
+  CareerAuthRoute: typeof CareerAuthRoute
+  CareerResetPasswordRoute: typeof CareerResetPasswordRoute
+  CareerIndexRoute: typeof CareerIndexRoute
+}
+
+const CareerRouteChildren: CareerRouteChildren = {
+  CareerAuthRoute: CareerAuthRoute,
+  CareerResetPasswordRoute: CareerResetPasswordRoute,
+  CareerIndexRoute: CareerIndexRoute,
+}
+
+const CareerRouteWithChildren =
+  CareerRoute._addFileChildren(CareerRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CareerRoute: CareerRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
