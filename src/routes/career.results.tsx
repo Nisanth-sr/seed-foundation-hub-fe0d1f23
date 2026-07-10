@@ -35,8 +35,7 @@ function ResultsPage() {
     (async () => {
       const { data } = await supabase.from("assessments").select("type,scores,status").eq("user_id", user.id);
       const mapped = (data ?? []).map((r) => ({ type: r.type as string, status: r.status as string, scores: (r.scores as unknown as Record<string, number> | null) ?? null }));
-      void mapped;
-      setRows(data ?? []);
+      setRows(mapped);
       setFetching(false);
     })();
   }, [user]);
