@@ -97,7 +97,7 @@ function BigFiveResults({ scores, onRetake }: { scores: BigFiveScores | null; on
                 <PolarGrid />
                 <PolarAngleAxis dataKey="trait" tick={{ fontSize: 12 }} />
                 <PolarRadiusAxis domain={[0, 100]} tick={{ fontSize: 10 }} />
-                <Radar name="Score" dataKey="score" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.35} />
+                <Radar name="Score" dataKey="score" stroke="var(--primary)" fill="var(--primary)" fillOpacity={0.35} />
               </RadarChart>
             </ResponsiveContainer>
           </div>
@@ -162,10 +162,10 @@ function RiasecResults({ scores, onRetake }: { scores: RiasecScores | null; onRe
               <BarChart data={data}>
                 <XAxis dataKey="type" tick={{ fontSize: 11 }} />
                 <YAxis domain={[0, 100]} tick={{ fontSize: 11 }} />
-                <Tooltip cursor={{ fill: "hsl(var(--muted))" }} />
+                <Tooltip cursor={{ fill: "var(--muted)" }} />
                 <Bar dataKey="score" radius={[6, 6, 0, 0]}>
                   {data.map((d, i) => (
-                    <Cell key={i} fill={code.includes(d.key) ? "hsl(var(--primary))" : "hsl(var(--muted-foreground) / 0.5)"} />
+                    <Cell key={i} fill={code.includes(d.key) ? "var(--primary)" : "color-mix(in oklab, var(--muted-foreground) 50%, transparent)"} />
                   ))}
                 </Bar>
               </BarChart>
