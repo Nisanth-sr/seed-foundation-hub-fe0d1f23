@@ -23,7 +23,7 @@ function ResultsPage() {
   const { user, loading } = useCareerAuth();
   const { t } = useI18n();
   const navigate = useNavigate();
-  const [rows, setRows] = useState<{ type: string; scores: Record<string, number> | null; status: string }[]>([]);
+  const [rows, setRows] = useState<Array<{ type: string; scores: Record<string, number> | null; status: string }>>([]);
   const [fetching, setFetching] = useState(true);
 
   useEffect(() => {
@@ -34,6 +34,8 @@ function ResultsPage() {
     if (!user) return;
     (async () => {
       const { data } = await supabase.from("assessments").select("type,scores,status").eq("user_id", user.id);
+      const mapped = (data ?? []).map((r) => ({ type: r.type as string, status: r.status as string, scores: (r.scores as unknown as Record<string, number> | null) ?? null }));
+      void mapped;
       setRows(data ?? []);
       setFetching(false);
     })();

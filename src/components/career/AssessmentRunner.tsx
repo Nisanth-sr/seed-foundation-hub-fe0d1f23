@@ -63,18 +63,16 @@ export function AssessmentRunner({
   const persist = async (nextAnswers: Record<string, number>, nextIndex: number, complete = false) => {
     if (!user) return;
     setSaving(true);
-    const payload: Record<string, unknown> = {
+    const scores = complete ? (type === "bigfive" ? scoreBigFive(nextAnswers) : scoreRiasec(nextAnswers)) : null;
+    const { error } = await supabase.from("assessments").upsert({
       user_id: user.id,
       type,
-      answers: nextAnswers,
+      answers: nextAnswers as unknown as never,
       current_index: nextIndex,
       status: complete ? "completed" : "in_progress",
-    };
-    if (complete) {
-      payload.completed_at = new Date().toISOString();
-      payload.scores = type === "bigfive" ? scoreBigFive(nextAnswers) : scoreRiasec(nextAnswers);
-    }
-    const { error } = await supabase.from("assessments").upsert(payload, { onConflict: "user_id,type" });
+      completed_at: complete ? new Date().toISOString() : null,
+      scores: (scores ?? null) as unknown as never,
+    }, { onConflict: "user_id,type" });
     setSaving(false);
     if (error) toast.error(error.message);
     else setSavedAt(Date.now());

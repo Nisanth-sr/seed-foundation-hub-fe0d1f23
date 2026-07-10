@@ -12,8 +12,13 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as CareerRouteImport } from './routes/career'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CareerIndexRouteImport } from './routes/career.index'
+import { Route as CareerResultsRouteImport } from './routes/career.results'
 import { Route as CareerResetPasswordRouteImport } from './routes/career.reset-password'
+import { Route as CareerMatchRouteImport } from './routes/career.match'
+import { Route as CareerDashboardRouteImport } from './routes/career.dashboard'
 import { Route as CareerAuthRouteImport } from './routes/career.auth'
+import { Route as CareerAssessmentRiasecRouteImport } from './routes/career.assessment.riasec'
+import { Route as CareerAssessmentBigfiveRouteImport } from './routes/career.assessment.bigfive'
 
 const CareerRoute = CareerRouteImport.update({
   id: '/career',
@@ -30,9 +35,24 @@ const CareerIndexRoute = CareerIndexRouteImport.update({
   path: '/',
   getParentRoute: () => CareerRoute,
 } as any)
+const CareerResultsRoute = CareerResultsRouteImport.update({
+  id: '/results',
+  path: '/results',
+  getParentRoute: () => CareerRoute,
+} as any)
 const CareerResetPasswordRoute = CareerResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
+  getParentRoute: () => CareerRoute,
+} as any)
+const CareerMatchRoute = CareerMatchRouteImport.update({
+  id: '/match',
+  path: '/match',
+  getParentRoute: () => CareerRoute,
+} as any)
+const CareerDashboardRoute = CareerDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => CareerRoute,
 } as any)
 const CareerAuthRoute = CareerAuthRouteImport.update({
@@ -40,27 +60,52 @@ const CareerAuthRoute = CareerAuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => CareerRoute,
 } as any)
+const CareerAssessmentRiasecRoute = CareerAssessmentRiasecRouteImport.update({
+  id: '/assessment/riasec',
+  path: '/assessment/riasec',
+  getParentRoute: () => CareerRoute,
+} as any)
+const CareerAssessmentBigfiveRoute = CareerAssessmentBigfiveRouteImport.update({
+  id: '/assessment/bigfive',
+  path: '/assessment/bigfive',
+  getParentRoute: () => CareerRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/career': typeof CareerRouteWithChildren
   '/career/auth': typeof CareerAuthRoute
+  '/career/dashboard': typeof CareerDashboardRoute
+  '/career/match': typeof CareerMatchRoute
   '/career/reset-password': typeof CareerResetPasswordRoute
+  '/career/results': typeof CareerResultsRoute
   '/career/': typeof CareerIndexRoute
+  '/career/assessment/bigfive': typeof CareerAssessmentBigfiveRoute
+  '/career/assessment/riasec': typeof CareerAssessmentRiasecRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/career/auth': typeof CareerAuthRoute
+  '/career/dashboard': typeof CareerDashboardRoute
+  '/career/match': typeof CareerMatchRoute
   '/career/reset-password': typeof CareerResetPasswordRoute
+  '/career/results': typeof CareerResultsRoute
   '/career': typeof CareerIndexRoute
+  '/career/assessment/bigfive': typeof CareerAssessmentBigfiveRoute
+  '/career/assessment/riasec': typeof CareerAssessmentRiasecRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/career': typeof CareerRouteWithChildren
   '/career/auth': typeof CareerAuthRoute
+  '/career/dashboard': typeof CareerDashboardRoute
+  '/career/match': typeof CareerMatchRoute
   '/career/reset-password': typeof CareerResetPasswordRoute
+  '/career/results': typeof CareerResultsRoute
   '/career/': typeof CareerIndexRoute
+  '/career/assessment/bigfive': typeof CareerAssessmentBigfiveRoute
+  '/career/assessment/riasec': typeof CareerAssessmentRiasecRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -68,17 +113,36 @@ export interface FileRouteTypes {
     | '/'
     | '/career'
     | '/career/auth'
+    | '/career/dashboard'
+    | '/career/match'
     | '/career/reset-password'
+    | '/career/results'
     | '/career/'
+    | '/career/assessment/bigfive'
+    | '/career/assessment/riasec'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/career/auth' | '/career/reset-password' | '/career'
+  to:
+    | '/'
+    | '/career/auth'
+    | '/career/dashboard'
+    | '/career/match'
+    | '/career/reset-password'
+    | '/career/results'
+    | '/career'
+    | '/career/assessment/bigfive'
+    | '/career/assessment/riasec'
   id:
     | '__root__'
     | '/'
     | '/career'
     | '/career/auth'
+    | '/career/dashboard'
+    | '/career/match'
     | '/career/reset-password'
+    | '/career/results'
     | '/career/'
+    | '/career/assessment/bigfive'
+    | '/career/assessment/riasec'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -109,11 +173,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CareerIndexRouteImport
       parentRoute: typeof CareerRoute
     }
+    '/career/results': {
+      id: '/career/results'
+      path: '/results'
+      fullPath: '/career/results'
+      preLoaderRoute: typeof CareerResultsRouteImport
+      parentRoute: typeof CareerRoute
+    }
     '/career/reset-password': {
       id: '/career/reset-password'
       path: '/reset-password'
       fullPath: '/career/reset-password'
       preLoaderRoute: typeof CareerResetPasswordRouteImport
+      parentRoute: typeof CareerRoute
+    }
+    '/career/match': {
+      id: '/career/match'
+      path: '/match'
+      fullPath: '/career/match'
+      preLoaderRoute: typeof CareerMatchRouteImport
+      parentRoute: typeof CareerRoute
+    }
+    '/career/dashboard': {
+      id: '/career/dashboard'
+      path: '/dashboard'
+      fullPath: '/career/dashboard'
+      preLoaderRoute: typeof CareerDashboardRouteImport
       parentRoute: typeof CareerRoute
     }
     '/career/auth': {
@@ -123,19 +208,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CareerAuthRouteImport
       parentRoute: typeof CareerRoute
     }
+    '/career/assessment/riasec': {
+      id: '/career/assessment/riasec'
+      path: '/assessment/riasec'
+      fullPath: '/career/assessment/riasec'
+      preLoaderRoute: typeof CareerAssessmentRiasecRouteImport
+      parentRoute: typeof CareerRoute
+    }
+    '/career/assessment/bigfive': {
+      id: '/career/assessment/bigfive'
+      path: '/assessment/bigfive'
+      fullPath: '/career/assessment/bigfive'
+      preLoaderRoute: typeof CareerAssessmentBigfiveRouteImport
+      parentRoute: typeof CareerRoute
+    }
   }
 }
 
 interface CareerRouteChildren {
   CareerAuthRoute: typeof CareerAuthRoute
+  CareerDashboardRoute: typeof CareerDashboardRoute
+  CareerMatchRoute: typeof CareerMatchRoute
   CareerResetPasswordRoute: typeof CareerResetPasswordRoute
+  CareerResultsRoute: typeof CareerResultsRoute
   CareerIndexRoute: typeof CareerIndexRoute
+  CareerAssessmentBigfiveRoute: typeof CareerAssessmentBigfiveRoute
+  CareerAssessmentRiasecRoute: typeof CareerAssessmentRiasecRoute
 }
 
 const CareerRouteChildren: CareerRouteChildren = {
   CareerAuthRoute: CareerAuthRoute,
+  CareerDashboardRoute: CareerDashboardRoute,
+  CareerMatchRoute: CareerMatchRoute,
   CareerResetPasswordRoute: CareerResetPasswordRoute,
+  CareerResultsRoute: CareerResultsRoute,
   CareerIndexRoute: CareerIndexRoute,
+  CareerAssessmentBigfiveRoute: CareerAssessmentBigfiveRoute,
+  CareerAssessmentRiasecRoute: CareerAssessmentRiasecRoute,
 }
 
 const CareerRouteWithChildren =
