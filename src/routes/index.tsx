@@ -54,13 +54,10 @@ function Header() {
     { href: "#resources", label: "Resources" },
   ];
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/85 backdrop-blur">
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-background backdrop-blur">
       <div className="container-x flex h-16 items-center justify-between gap-4">
         <a href="#top" className="flex items-center gap-2" aria-label="SEED Foundation home">
-          <img src={logoShort.url} alt="" className="h-9 w-9 object-contain" />
-          <span className="font-display text-lg font-bold tracking-tight">
-            SEED <span className="text-primary">Foundation</span>
-          </span>
+          <img src={logoShort.url} alt="SEED Foundation logo" className="h-10 w-auto object-contain" />
         </a>
         <nav className="hidden items-center gap-7 md:flex" aria-label="Primary">
           {links.map((l) => (
