@@ -67,6 +67,9 @@ function Header() {
           ))}
         </nav>
         <div className="flex items-center gap-2">
+          <a href="/career" className="hidden sm:inline-flex">
+            <Button variant="outline" className="border-border">Sign In</Button>
+          </a>
           <a href="#get-involved" className="hidden md:inline-flex">
             <Button className="bg-primary text-primary-foreground hover:bg-primary/90">Get Involved</Button>
           </a>
