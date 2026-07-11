@@ -513,7 +513,7 @@ function Footer() {
         <div>
           <h4 className="text-sm font-semibold">Contact</h4>
           <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-            <li className="flex items-center gap-2"><Mail className="h-4 w-4" /> hello@seedfoundation.org</li>
+            <li className="flex items-center gap-2"><Mail className="h-4 w-4" /> contact@seedfound.org</li>
             <li><a href="#get-involved" className="hover:text-foreground">Volunteer</a></li>
             <li><a href="#get-involved" className="hover:text-foreground">Partner with us</a></li>
           </ul>
