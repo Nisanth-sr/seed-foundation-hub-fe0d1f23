@@ -12,20 +12,22 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import logoShort from "@/assets/seed-logo-short.asset.json";
 import logoFull from "@/assets/seed-logo-full.asset.json";
+import heroCover from "@/assets/hero-cover.asset.json";
 
 export const Route = createFileRoute("/")({ component: Landing });
 
 // ---------- Unsplash imagery ----------
 const IMG = {
-  hero: "https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=1920&q=80",
+  hero: heroCover.url,
   aiEdu: "https://images.unsplash.com/photo-1546410531-bb4caa6b424d?auto=format&fit=crop&w=1200&q=80",
   research: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1200&q=80",
-  climate: "https://images.unsplash.com/photo-1569163139394-de44cb4f3ed6?auto=format&fit=crop&w=1200&q=80",
+  climate: "https://images.unsplash.com/photo-1611273426858-450d8e3c9fce?auto=format&fit=crop&w=1200&q=80",
   story1: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&q=80",
   story2: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80",
   story3: "https://images.unsplash.com/photo-1544027993-37dbfe43562a?auto=format&fit=crop&w=800&q=80",
   story4: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=800&q=80",
 };
+
 
 // ---------- Reveal-on-scroll ----------
 function useReveal<T extends HTMLElement>() {
