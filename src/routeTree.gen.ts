@@ -17,6 +17,7 @@ import { Route as CareerResetPasswordRouteImport } from './routes/career.reset-p
 import { Route as CareerMatchRouteImport } from './routes/career.match'
 import { Route as CareerDashboardRouteImport } from './routes/career.dashboard'
 import { Route as CareerAuthRouteImport } from './routes/career.auth'
+import { Route as CareerAdminConsoleX7k2p9RouteImport } from './routes/career.admin-console-x7k2p9'
 import { Route as CareerAssessmentRiasecRouteImport } from './routes/career.assessment.riasec'
 import { Route as CareerAssessmentBigfiveRouteImport } from './routes/career.assessment.bigfive'
 
@@ -60,6 +61,12 @@ const CareerAuthRoute = CareerAuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => CareerRoute,
 } as any)
+const CareerAdminConsoleX7k2p9Route =
+  CareerAdminConsoleX7k2p9RouteImport.update({
+    id: '/admin-console-x7k2p9',
+    path: '/admin-console-x7k2p9',
+    getParentRoute: () => CareerRoute,
+  } as any)
 const CareerAssessmentRiasecRoute = CareerAssessmentRiasecRouteImport.update({
   id: '/assessment/riasec',
   path: '/assessment/riasec',
@@ -74,6 +81,7 @@ const CareerAssessmentBigfiveRoute = CareerAssessmentBigfiveRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/career': typeof CareerRouteWithChildren
+  '/career/admin-console-x7k2p9': typeof CareerAdminConsoleX7k2p9Route
   '/career/auth': typeof CareerAuthRoute
   '/career/dashboard': typeof CareerDashboardRoute
   '/career/match': typeof CareerMatchRoute
@@ -85,6 +93,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/career/admin-console-x7k2p9': typeof CareerAdminConsoleX7k2p9Route
   '/career/auth': typeof CareerAuthRoute
   '/career/dashboard': typeof CareerDashboardRoute
   '/career/match': typeof CareerMatchRoute
@@ -98,6 +107,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/career': typeof CareerRouteWithChildren
+  '/career/admin-console-x7k2p9': typeof CareerAdminConsoleX7k2p9Route
   '/career/auth': typeof CareerAuthRoute
   '/career/dashboard': typeof CareerDashboardRoute
   '/career/match': typeof CareerMatchRoute
@@ -112,6 +122,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/career'
+    | '/career/admin-console-x7k2p9'
     | '/career/auth'
     | '/career/dashboard'
     | '/career/match'
@@ -123,6 +134,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/career/admin-console-x7k2p9'
     | '/career/auth'
     | '/career/dashboard'
     | '/career/match'
@@ -135,6 +147,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/career'
+    | '/career/admin-console-x7k2p9'
     | '/career/auth'
     | '/career/dashboard'
     | '/career/match'
@@ -208,6 +221,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CareerAuthRouteImport
       parentRoute: typeof CareerRoute
     }
+    '/career/admin-console-x7k2p9': {
+      id: '/career/admin-console-x7k2p9'
+      path: '/admin-console-x7k2p9'
+      fullPath: '/career/admin-console-x7k2p9'
+      preLoaderRoute: typeof CareerAdminConsoleX7k2p9RouteImport
+      parentRoute: typeof CareerRoute
+    }
     '/career/assessment/riasec': {
       id: '/career/assessment/riasec'
       path: '/assessment/riasec'
@@ -226,6 +246,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface CareerRouteChildren {
+  CareerAdminConsoleX7k2p9Route: typeof CareerAdminConsoleX7k2p9Route
   CareerAuthRoute: typeof CareerAuthRoute
   CareerDashboardRoute: typeof CareerDashboardRoute
   CareerMatchRoute: typeof CareerMatchRoute
@@ -237,6 +258,7 @@ interface CareerRouteChildren {
 }
 
 const CareerRouteChildren: CareerRouteChildren = {
+  CareerAdminConsoleX7k2p9Route: CareerAdminConsoleX7k2p9Route,
   CareerAuthRoute: CareerAuthRoute,
   CareerDashboardRoute: CareerDashboardRoute,
   CareerMatchRoute: CareerMatchRoute,
@@ -257,13 +279,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
