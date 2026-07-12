@@ -101,6 +101,39 @@ export type Database = {
         }
         Relationships: []
       }
+      assessment_analyses: {
+        Row: {
+          analysis: Json
+          created_at: string
+          id: string
+          model: string
+          prompt_version: string
+          scores_snapshot: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          analysis: Json
+          created_at?: string
+          id?: string
+          model: string
+          prompt_version?: string
+          scores_snapshot: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          analysis?: Json
+          created_at?: string
+          id?: string
+          model?: string
+          prompt_version?: string
+          scores_snapshot?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
