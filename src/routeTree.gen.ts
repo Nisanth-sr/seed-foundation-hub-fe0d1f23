@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as CareerRouteImport } from './routes/career'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CareerIndexRouteImport } from './routes/career.index'
+import { Route as InternalSlugRouteImport } from './routes/internal.$slug'
 import { Route as CareerResultsRouteImport } from './routes/career.results'
 import { Route as CareerResetPasswordRouteImport } from './routes/career.reset-password'
 import { Route as CareerMatchRouteImport } from './routes/career.match'
@@ -35,6 +36,11 @@ const CareerIndexRoute = CareerIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => CareerRoute,
+} as any)
+const InternalSlugRoute = InternalSlugRouteImport.update({
+  id: '/internal/$slug',
+  path: '/internal/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const CareerResultsRoute = CareerResultsRouteImport.update({
   id: '/results',
@@ -87,6 +93,7 @@ export interface FileRoutesByFullPath {
   '/career/match': typeof CareerMatchRoute
   '/career/reset-password': typeof CareerResetPasswordRoute
   '/career/results': typeof CareerResultsRoute
+  '/internal/$slug': typeof InternalSlugRoute
   '/career/': typeof CareerIndexRoute
   '/career/assessment/bigfive': typeof CareerAssessmentBigfiveRoute
   '/career/assessment/riasec': typeof CareerAssessmentRiasecRoute
@@ -99,6 +106,7 @@ export interface FileRoutesByTo {
   '/career/match': typeof CareerMatchRoute
   '/career/reset-password': typeof CareerResetPasswordRoute
   '/career/results': typeof CareerResultsRoute
+  '/internal/$slug': typeof InternalSlugRoute
   '/career': typeof CareerIndexRoute
   '/career/assessment/bigfive': typeof CareerAssessmentBigfiveRoute
   '/career/assessment/riasec': typeof CareerAssessmentRiasecRoute
@@ -113,6 +121,7 @@ export interface FileRoutesById {
   '/career/match': typeof CareerMatchRoute
   '/career/reset-password': typeof CareerResetPasswordRoute
   '/career/results': typeof CareerResultsRoute
+  '/internal/$slug': typeof InternalSlugRoute
   '/career/': typeof CareerIndexRoute
   '/career/assessment/bigfive': typeof CareerAssessmentBigfiveRoute
   '/career/assessment/riasec': typeof CareerAssessmentRiasecRoute
@@ -128,6 +137,7 @@ export interface FileRouteTypes {
     | '/career/match'
     | '/career/reset-password'
     | '/career/results'
+    | '/internal/$slug'
     | '/career/'
     | '/career/assessment/bigfive'
     | '/career/assessment/riasec'
@@ -140,6 +150,7 @@ export interface FileRouteTypes {
     | '/career/match'
     | '/career/reset-password'
     | '/career/results'
+    | '/internal/$slug'
     | '/career'
     | '/career/assessment/bigfive'
     | '/career/assessment/riasec'
@@ -153,6 +164,7 @@ export interface FileRouteTypes {
     | '/career/match'
     | '/career/reset-password'
     | '/career/results'
+    | '/internal/$slug'
     | '/career/'
     | '/career/assessment/bigfive'
     | '/career/assessment/riasec'
@@ -161,6 +173,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CareerRoute: typeof CareerRouteWithChildren
+  InternalSlugRoute: typeof InternalSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -185,6 +198,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/career/'
       preLoaderRoute: typeof CareerIndexRouteImport
       parentRoute: typeof CareerRoute
+    }
+    '/internal/$slug': {
+      id: '/internal/$slug'
+      path: '/internal/$slug'
+      fullPath: '/internal/$slug'
+      preLoaderRoute: typeof InternalSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/career/results': {
       id: '/career/results'
@@ -275,7 +295,18 @@ const CareerRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CareerRoute: CareerRouteWithChildren,
+  InternalSlugRoute: InternalSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
