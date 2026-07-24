@@ -9,62 +9,32 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as CareerRouteImport } from './routes/career'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CareerRouteImport } from './routes/career'
 import { Route as CareerIndexRouteImport } from './routes/career.index'
-import { Route as InternalSlugRouteImport } from './routes/internal.$slug'
-import { Route as CareerResultsRouteImport } from './routes/career.results'
-import { Route as CareerResetPasswordRouteImport } from './routes/career.reset-password'
-import { Route as CareerMatchRouteImport } from './routes/career.match'
-import { Route as CareerDashboardRouteImport } from './routes/career.dashboard'
-import { Route as CareerAuthRouteImport } from './routes/career.auth'
 import { Route as CareerAdminConsoleX7k2p9RouteImport } from './routes/career.admin-console-x7k2p9'
-import { Route as CareerAssessmentRiasecRouteImport } from './routes/career.assessment.riasec'
+import { Route as CareerAuthRouteImport } from './routes/career.auth'
+import { Route as CareerDashboardRouteImport } from './routes/career.dashboard'
+import { Route as CareerMatchRouteImport } from './routes/career.match'
+import { Route as CareerResetPasswordRouteImport } from './routes/career.reset-password'
+import { Route as CareerResultsRouteImport } from './routes/career.results'
+import { Route as InternalSlugRouteImport } from './routes/internal.$slug'
 import { Route as CareerAssessmentBigfiveRouteImport } from './routes/career.assessment.bigfive'
+import { Route as CareerAssessmentRiasecRouteImport } from './routes/career.assessment.riasec'
 
-const CareerRoute = CareerRouteImport.update({
-  id: '/career',
-  path: '/career',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CareerRoute = CareerRouteImport.update({
+  id: '/career',
+  path: '/career',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CareerIndexRoute = CareerIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => CareerRoute,
-} as any)
-const InternalSlugRoute = InternalSlugRouteImport.update({
-  id: '/internal/$slug',
-  path: '/internal/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CareerResultsRoute = CareerResultsRouteImport.update({
-  id: '/results',
-  path: '/results',
-  getParentRoute: () => CareerRoute,
-} as any)
-const CareerResetPasswordRoute = CareerResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
-  getParentRoute: () => CareerRoute,
-} as any)
-const CareerMatchRoute = CareerMatchRouteImport.update({
-  id: '/match',
-  path: '/match',
-  getParentRoute: () => CareerRoute,
-} as any)
-const CareerDashboardRoute = CareerDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => CareerRoute,
-} as any)
-const CareerAuthRoute = CareerAuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
   getParentRoute: () => CareerRoute,
 } as any)
 const CareerAdminConsoleX7k2p9Route =
@@ -73,14 +43,44 @@ const CareerAdminConsoleX7k2p9Route =
     path: '/admin-console-x7k2p9',
     getParentRoute: () => CareerRoute,
   } as any)
-const CareerAssessmentRiasecRoute = CareerAssessmentRiasecRouteImport.update({
-  id: '/assessment/riasec',
-  path: '/assessment/riasec',
+const CareerAuthRoute = CareerAuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => CareerRoute,
+} as any)
+const CareerDashboardRoute = CareerDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => CareerRoute,
+} as any)
+const CareerMatchRoute = CareerMatchRouteImport.update({
+  id: '/match',
+  path: '/match',
+  getParentRoute: () => CareerRoute,
+} as any)
+const CareerResetPasswordRoute = CareerResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => CareerRoute,
+} as any)
+const CareerResultsRoute = CareerResultsRouteImport.update({
+  id: '/results',
+  path: '/results',
+  getParentRoute: () => CareerRoute,
+} as any)
+const InternalSlugRoute = InternalSlugRouteImport.update({
+  id: '/internal/$slug',
+  path: '/internal/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const CareerAssessmentBigfiveRoute = CareerAssessmentBigfiveRouteImport.update({
   id: '/assessment/bigfive',
   path: '/assessment/bigfive',
+  getParentRoute: () => CareerRoute,
+} as any)
+const CareerAssessmentRiasecRoute = CareerAssessmentRiasecRouteImport.update({
+  id: '/assessment/riasec',
+  path: '/assessment/riasec',
   getParentRoute: () => CareerRoute,
 } as any)
 
@@ -178,18 +178,18 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/career': {
-      id: '/career'
-      path: '/career'
-      fullPath: '/career'
-      preLoaderRoute: typeof CareerRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/career': {
+      id: '/career'
+      path: '/career'
+      fullPath: '/career'
+      preLoaderRoute: typeof CareerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/career/': {
@@ -199,39 +199,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CareerIndexRouteImport
       parentRoute: typeof CareerRoute
     }
-    '/internal/$slug': {
-      id: '/internal/$slug'
-      path: '/internal/$slug'
-      fullPath: '/internal/$slug'
-      preLoaderRoute: typeof InternalSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/career/results': {
-      id: '/career/results'
-      path: '/results'
-      fullPath: '/career/results'
-      preLoaderRoute: typeof CareerResultsRouteImport
-      parentRoute: typeof CareerRoute
-    }
-    '/career/reset-password': {
-      id: '/career/reset-password'
-      path: '/reset-password'
-      fullPath: '/career/reset-password'
-      preLoaderRoute: typeof CareerResetPasswordRouteImport
-      parentRoute: typeof CareerRoute
-    }
-    '/career/match': {
-      id: '/career/match'
-      path: '/match'
-      fullPath: '/career/match'
-      preLoaderRoute: typeof CareerMatchRouteImport
-      parentRoute: typeof CareerRoute
-    }
-    '/career/dashboard': {
-      id: '/career/dashboard'
-      path: '/dashboard'
-      fullPath: '/career/dashboard'
-      preLoaderRoute: typeof CareerDashboardRouteImport
+    '/career/admin-console-x7k2p9': {
+      id: '/career/admin-console-x7k2p9'
+      path: '/admin-console-x7k2p9'
+      fullPath: '/career/admin-console-x7k2p9'
+      preLoaderRoute: typeof CareerAdminConsoleX7k2p9RouteImport
       parentRoute: typeof CareerRoute
     }
     '/career/auth': {
@@ -241,11 +213,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CareerAuthRouteImport
       parentRoute: typeof CareerRoute
     }
-    '/career/admin-console-x7k2p9': {
-      id: '/career/admin-console-x7k2p9'
-      path: '/admin-console-x7k2p9'
-      fullPath: '/career/admin-console-x7k2p9'
-      preLoaderRoute: typeof CareerAdminConsoleX7k2p9RouteImport
+    '/career/dashboard': {
+      id: '/career/dashboard'
+      path: '/dashboard'
+      fullPath: '/career/dashboard'
+      preLoaderRoute: typeof CareerDashboardRouteImport
+      parentRoute: typeof CareerRoute
+    }
+    '/career/match': {
+      id: '/career/match'
+      path: '/match'
+      fullPath: '/career/match'
+      preLoaderRoute: typeof CareerMatchRouteImport
+      parentRoute: typeof CareerRoute
+    }
+    '/career/reset-password': {
+      id: '/career/reset-password'
+      path: '/reset-password'
+      fullPath: '/career/reset-password'
+      preLoaderRoute: typeof CareerResetPasswordRouteImport
+      parentRoute: typeof CareerRoute
+    }
+    '/career/results': {
+      id: '/career/results'
+      path: '/results'
+      fullPath: '/career/results'
+      preLoaderRoute: typeof CareerResultsRouteImport
+      parentRoute: typeof CareerRoute
+    }
+    '/internal/$slug': {
+      id: '/internal/$slug'
+      path: '/internal/$slug'
+      fullPath: '/internal/$slug'
+      preLoaderRoute: typeof InternalSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/career/assessment/bigfive': {
+      id: '/career/assessment/bigfive'
+      path: '/assessment/bigfive'
+      fullPath: '/career/assessment/bigfive'
+      preLoaderRoute: typeof CareerAssessmentBigfiveRouteImport
       parentRoute: typeof CareerRoute
     }
     '/career/assessment/riasec': {
@@ -253,13 +260,6 @@ declare module '@tanstack/react-router' {
       path: '/assessment/riasec'
       fullPath: '/career/assessment/riasec'
       preLoaderRoute: typeof CareerAssessmentRiasecRouteImport
-      parentRoute: typeof CareerRoute
-    }
-    '/career/assessment/bigfive': {
-      id: '/career/assessment/bigfive'
-      path: '/assessment/bigfive'
-      fullPath: '/career/assessment/bigfive'
-      preLoaderRoute: typeof CareerAssessmentBigfiveRouteImport
       parentRoute: typeof CareerRoute
     }
   }
