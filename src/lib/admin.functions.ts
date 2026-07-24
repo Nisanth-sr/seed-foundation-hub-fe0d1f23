@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import {
   verifyAdminPassword,
   createAdminSessionToken,
@@ -11,7 +12,7 @@ import {
 } from "./admin-auth.server";
 import {
   listCompletedUsers,
-  getUserDetail,
+  getUserDetail as fetchUserDetail,
   saveAnalysis,
   getCachedAnalysis,
 } from "./admin.server";
@@ -49,7 +50,7 @@ export const adminGetUserDetail = createServerFn({ method: "GET" })
   .validator(z.object({ userId: z.string().uuid() }))
   .handler(async ({ data }) => {
     await requireAdminSession();
-    const detail = await getUserDetail(data.userId);
+    const detail = await fetchUserDetail(data.userId);
     if (!detail) throw new Error("User not found or assessments incomplete");
     return { detail };
   });
@@ -75,7 +76,7 @@ export const adminGenerateAnalysis = createServerFn({ method: "POST" })
   .validator(z.object({ userId: z.string().uuid() }))
   .handler(async ({ data }) => {
     await requireAdminSession();
-    const detail = await getUserDetail(data.userId);
+    const detail = await fetchUserDetail(data.userId);
     if (!detail) throw new Error("User not found or assessments incomplete");
 
     const { analysis, model } = await generateAnalysis({
@@ -106,7 +107,7 @@ export const adminGenerateAnalysis = createServerFn({ method: "POST" })
         updatedAt: new Date().toISOString(),
       },
     };
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+  });
 
 async function requireAdmin(context: { supabase: any; userId: string }) {
   const { data, error } = await context.supabase
