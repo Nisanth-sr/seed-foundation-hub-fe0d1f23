@@ -109,12 +109,13 @@ export const adminGenerateAnalysis = createServerFn({ method: "POST" })
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 async function requireAdmin(context: { supabase: any; userId: string }) {
-  const { data, error } = await context.supabase.rpc("has_role", {
-    _user_id: context.userId,
-    _role: "admin",
-  });
+  const { data, error } = await context.supabase
+    .from("profiles")
+    .select("is_admin")
+    .eq("id", context.userId)
+    .maybeSingle();
   if (error) throw new Error("Role check failed");
-  if (!data) throw new Error("Forbidden: admin only");
+  if (!data?.is_admin) throw new Error("Forbidden: admin only");
 }
 
 export type AdminUserRow = {

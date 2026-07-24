@@ -27,13 +27,51 @@ Wrong slug returns 404. No links to this page exist in the public site.
 
 ## Database migration
 
-Apply the new migration before using AI analysis caching:
+Apply migrations before using AI analysis caching and role-based admin:
 
 ```bash
 supabase db push
 ```
 
-Or run `supabase/migrations/20260711140000_assessment_analyses.sql` in the Supabase SQL editor.
+Or run these in the Supabase SQL editor:
+
+- `supabase/migrations/20260711140000_assessment_analyses.sql`
+- `supabase/migrations/20260724161000_profiles_is_admin.sql`
+
+## Granting admin (role-based console)
+
+Role-based admin lives at `/career/admin-console-x7k2p9` and uses `profiles.is_admin`.
+
+**Promote by email** (SQL Editor):
+
+```sql
+UPDATE public.profiles
+SET is_admin = true
+WHERE id = (
+  SELECT id FROM auth.users WHERE lower(email) = lower('user@example.com')
+);
+```
+
+**Demote by email:**
+
+```sql
+UPDATE public.profiles
+SET is_admin = false
+WHERE id = (
+  SELECT id FROM auth.users WHERE lower(email) = lower('user@example.com')
+);
+```
+
+**List admins:**
+
+```sql
+SELECT u.email, p.display_name, p.is_admin
+FROM public.profiles p
+JOIN auth.users u ON u.id = p.id
+WHERE p.is_admin = true;
+```
+
+You can also open the `profiles` table in the Supabase Table Editor and set `is_admin` to `true` for a row. Regular users cannot change this column from the client (blocked by a database trigger).
 
 ## Features
 
@@ -47,3 +85,4 @@ Or run `supabase/migrations/20260711140000_assessment_analyses.sql` in the Supab
 - Never commit real passwords or API keys
 - `SUPABASE_SERVICE_ROLE_KEY` and `OPENROUTER_API_KEY` are server-only
 - All admin data flows through server functions with session validation
+- `profiles.is_admin` can only be changed via the SQL Editor, Table Editor, or service role; authenticated clients cannot self-promote
