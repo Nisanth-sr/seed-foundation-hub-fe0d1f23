@@ -6,7 +6,7 @@ import {
   HandHeart,
   ArrowRight,
 } from "lucide-react";
-import { Hero } from "@/components/site/Hero";
+import { HomeHero } from "@/components/site/HomeHero";
 import { Section } from "@/components/site/Section";
 import { Card } from "@/components/site/Card";
 import { ArticleCard } from "@/components/site/ArticleCard";
@@ -40,14 +40,9 @@ const pillarIcons = {
 export default function HomePage() {
   return (
     <>
-      <Hero
-        title={HERO.headline}
-        subtitle={HERO.subheading}
-        cta={{ text: HERO.cta.label, href: HERO.cta.href }}
-        height="full"
-      />
+      <HomeHero />
 
-      <Section spacing="lg">
+      <Section id="home-mission" spacing="lg">
         <div className="mx-auto max-w-[600px] text-center">
           <p className="text-3xl font-bold leading-[1.25] md:text-4xl lg:text-5xl">
             We believe lasting change begins with{" "}
