@@ -5,20 +5,6 @@ import { HERO } from "@/lib/content";
 export function HomeHero() {
   return (
     <section className="relative isolate overflow-hidden bg-primary text-foreground">
-      {/* Abstract field marks — not a box */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -left-24 top-24 h-72 w-72 rounded-full border-[3px] border-foreground/25"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -right-16 bottom-32 h-56 w-56 rotate-12 border-[3px] border-foreground/20"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute left-1/3 top-0 h-full w-px bg-foreground/15"
-      />
-
       <div className="container-x relative z-10 py-12 md:py-16 lg:py-20">
         <p className="text-xs font-semibold uppercase tracking-[0.16em] md:text-sm">
           Our efforts strive toward one goal
