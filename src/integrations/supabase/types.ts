@@ -133,6 +133,10 @@ export type Database = {
           prompt_version?: string
           scores_snapshot?: Json
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

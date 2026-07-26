@@ -1,4 +1,5 @@
-import { getRequestHeader, setResponseHeader } from "@tanstack/react-start/server";
+import "server-only";
+import { cookies } from "next/headers";
 
 const COOKIE_NAME = "seed-admin-session";
 const SESSION_TTL_MS = 24 * 60 * 60 * 1000;
@@ -58,37 +59,49 @@ export async function validateAdminSessionToken(token: string | null): Promise<b
     const data = JSON.parse(payload) as { exp: number };
     if (typeof data.exp !== "number" || data.exp < Date.now()) return false;
     const key = await getHmacKey();
-    return crypto.subtle.verify("HMAC", key, base64ToBytes(sigB64), payloadBytes);
+    const sig = base64ToBytes(sigB64);
+    return crypto.subtle.verify(
+      "HMAC",
+      key,
+      sig.buffer.slice(sig.byteOffset, sig.byteOffset + sig.byteLength) as ArrayBuffer,
+      payloadBytes.buffer.slice(
+        payloadBytes.byteOffset,
+        payloadBytes.byteOffset + payloadBytes.byteLength,
+      ) as ArrayBuffer,
+    );
   } catch {
     return false;
   }
 }
 
-export function readAdminCookie(): string | null {
-  const header = getRequestHeader("cookie");
-  if (!header) return null;
-  for (const part of header.split(/;\s*/)) {
-    const eq = part.indexOf("=");
-    if (eq === -1) continue;
-    if (part.slice(0, eq) === COOKIE_NAME) return decodeURIComponent(part.slice(eq + 1));
-  }
-  return null;
+export async function readAdminCookie(): Promise<string | null> {
+  const jar = await cookies();
+  return jar.get(COOKIE_NAME)?.value ?? null;
 }
 
-function cookieFlags(maxAge: number): string {
-  const secure = process.env.NODE_ENV === "production" ? "; Secure" : "";
-  return `HttpOnly; SameSite=Lax; Path=/${secure}; Max-Age=${maxAge}`;
+export async function setAdminCookie(token: string): Promise<void> {
+  const jar = await cookies();
+  jar.set(COOKIE_NAME, token, {
+    httpOnly: true,
+    sameSite: "lax",
+    path: "/",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: Math.floor(SESSION_TTL_MS / 1000),
+  });
 }
 
-export function setAdminCookie(token: string): void {
-  setResponseHeader("Set-Cookie", `${COOKIE_NAME}=${encodeURIComponent(token)}; ${cookieFlags(Math.floor(SESSION_TTL_MS / 1000))}`);
-}
-
-export function clearAdminCookie(): void {
-  setResponseHeader("Set-Cookie", `${COOKIE_NAME}=; ${cookieFlags(0)}`);
+export async function clearAdminCookie(): Promise<void> {
+  const jar = await cookies();
+  jar.set(COOKIE_NAME, "", {
+    httpOnly: true,
+    sameSite: "lax",
+    path: "/",
+    secure: process.env.NODE_ENV === "production",
+    maxAge: 0,
+  });
 }
 
 export async function requireAdminSession(): Promise<void> {
-  const valid = await validateAdminSessionToken(readAdminCookie());
+  const valid = await validateAdminSessionToken(await readAdminCookie());
   if (!valid) throw new Error("Unauthorized");
 }

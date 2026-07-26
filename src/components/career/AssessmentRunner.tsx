@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ArrowLeft, ArrowRight, Loader2, RotateCcw, Check, Save } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,7 +26,7 @@ export function AssessmentRunner({
 }) {
   const { user, loading } = useCareerAuth();
   const { t, locale } = useI18n();
-  const navigate = useNavigate();
+  const router = useRouter();
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [index, setIndex] = useState(0);
   const [ready, setReady] = useState(false);
@@ -35,8 +35,8 @@ export function AssessmentRunner({
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (!loading && !user) navigate({ to: "/career/auth" });
-  }, [user, loading, navigate]);
+    if (!loading && !user) router.push("/career/auth");
+  }, [user, loading, router]);
 
   useEffect(() => {
     if (!user) return;
@@ -102,7 +102,7 @@ export function AssessmentRunner({
         return;
       }
       await persist(answers, index, true);
-      navigate({ to: "/career/results", search: { type } });
+      router.push(`/career/results?type=${type}`);
     }
   };
 

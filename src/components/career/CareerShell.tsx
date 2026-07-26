@@ -1,4 +1,5 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Brain, LogOut, Moon, Sun, Globe } from "lucide-react";
 import { useCareerAuth } from "@/lib/career-auth";
 import { useI18n, type Locale } from "@/lib/career-i18n";
@@ -11,12 +12,12 @@ export function CareerHeader() {
   const { user, signOut } = useCareerAuth();
   const { locale, setLocale, t } = useI18n();
   const { theme, toggle } = useCareerTheme();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
-        <Link to="/career" className="flex items-center gap-2">
+        <Link href="/career" className="flex items-center gap-2">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary/60 text-primary-foreground">
             <Brain className="h-5 w-5" />
           </div>
@@ -47,15 +48,15 @@ export function CareerHeader() {
           {user ? (
             <>
               <Button variant="ghost" size="sm" asChild>
-                <Link to="/career/dashboard">{t("nav.dashboard")}</Link>
+                <Link href="/career/dashboard">{t("nav.dashboard")}</Link>
               </Button>
-              <Button variant="ghost" size="icon" onClick={async () => { await signOut(); navigate({ to: "/career" }); }} aria-label={t("nav.signout")}>
+              <Button variant="ghost" size="icon" onClick={async () => { await signOut(); router.push("/career"); }} aria-label={t("nav.signout")}>
                 <LogOut className="h-4 w-4" />
               </Button>
             </>
           ) : (
             <Button size="sm" asChild>
-              <Link to="/career/auth">{t("nav.signin")}</Link>
+              <Link href="/career/auth">{t("nav.signin")}</Link>
             </Button>
           )}
         </div>
