@@ -18,7 +18,7 @@ export function WorkFilters({ active }: { active: string }) {
       {FILTERS.map((f) => (
         <Link
           key={f.id}
-          href={f.id === "all" ? "/our-work" : `/our-work?area=${f.id}`}
+          href={f.id === "all" ? "/our-stories" : `/our-stories?area=${f.id}`}
           role="tab"
           aria-selected={active === f.id}
           className={cn(

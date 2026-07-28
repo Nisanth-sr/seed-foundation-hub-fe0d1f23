@@ -68,7 +68,7 @@ export default function AboutPage() {
         </div>
         <div className="mt-12">
           <Button asChild variant="primary" size="lg">
-            <Link href="/our-work">Explore our work</Link>
+            <Link href="/our-stories">Explore our stories</Link>
           </Button>
         </div>
       </Section>

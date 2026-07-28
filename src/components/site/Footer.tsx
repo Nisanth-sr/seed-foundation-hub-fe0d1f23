@@ -45,12 +45,12 @@ export function Footer() {
           <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-primary">Legal</h3>
           <ul className="space-y-2 text-sm">
             <li>
-              <Link href="/contact" className="hover:text-primary">
+              <Link href="/get-involved#contact" className="hover:text-primary">
                 Privacy
               </Link>
             </li>
             <li>
-              <Link href="/contact" className="hover:text-primary">
+              <Link href="/get-involved#contact" className="hover:text-primary">
                 Terms
               </Link>
             </li>

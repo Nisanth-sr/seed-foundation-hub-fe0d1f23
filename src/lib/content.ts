@@ -18,17 +18,15 @@ export const SITE = {
 export const NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/about", label: "About" },
-  { href: "/our-work", label: "Our Work" },
-  { href: "/stories", label: "Stories" },
+  { href: "/our-stories", label: "Our Stories" },
   { href: "/get-involved", label: "Get Involved" },
-  { href: "/contact", label: "Contact" },
 ] as const;
 
 export const HERO = {
   headline: "Every community deserves the opportunity to thrive.",
   subheading:
     "SEED FOUNDATION works alongside communities to improve health awareness, expand educational opportunities, protect the environment, and respond to humanitarian needs. Through community-led programs, awareness initiatives, and collaborative action, we help people gain knowledge, build confidence, and create positive change where it matters most.",
-  cta: { label: "Explore Our Work", href: "/our-work" },
+  cta: { label: "Explore Our Stories", href: "/our-stories" },
 } as const;
 
 export const BELIEF = {
@@ -51,28 +49,28 @@ export const PILLARS: {
     title: "Health Awareness",
     description:
       "We conduct community awareness initiatives that encourage prevention, early intervention, and informed decision-making. Our programs help communities understand important health issues while creating safe spaces for discussion and learning. This is reflected in initiatives such as the Cancer Awareness Program and the \"Missing Numbers\" suicide awareness initiative.",
-    href: "/our-work?area=health",
+    href: "/our-stories?area=health",
   },
   {
     id: "education",
     title: "Education & Career Guidance",
     description:
       "Students deserve access to information that helps them shape their future. Our career guidance programs introduce educational pathways, career opportunities, and practical guidance so young people can make informed decisions with greater confidence.",
-    href: "/our-work?area=education",
+    href: "/our-stories?area=education",
   },
   {
     id: "environment",
     title: "Environment",
     description:
       "Healthy communities depend on a healthy environment. Through awareness campaigns, waste segregation initiatives, and community cleanup efforts, we encourage responsible environmental practices that protect coastal ecosystems and marine life.",
-    href: "/our-work?area=environment",
+    href: "/our-stories?area=environment",
   },
   {
     id: "disaster-relief",
     title: "Humanitarian Relief",
     description:
       "When communities face emergencies, collective action matters. We mobilize volunteers, educational institutions, and community members to provide practical support that reaches people when they need it most.",
-    href: "/our-work?area=disaster-relief",
+    href: "/our-stories?area=disaster-relief",
   },
 ];
 

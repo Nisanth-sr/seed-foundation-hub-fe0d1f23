@@ -82,14 +82,14 @@ export default function HomePage() {
               title={s.title}
               excerpt={s.excerpt}
               category={s.category}
-              href={`/stories/${s.slug}`}
+              href={`/our-stories/${s.slug}`}
               image={s.image}
             />
           ))}
         </div>
         <div className="mt-10">
           <Button asChild variant="primary">
-            <Link href="/stories">Read all stories</Link>
+            <Link href="/our-stories">Read all stories</Link>
           </Button>
         </div>
       </Section>
