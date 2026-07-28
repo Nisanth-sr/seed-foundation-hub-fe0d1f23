@@ -47,17 +47,8 @@ export function organizationJsonLd() {
     name: SITE.name,
     url: SITE.url,
     email: SITE.email,
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: "No. 36, R.C. Street, Elankadai, Kottar Post",
-      addressLocality: "Nagercoil",
-      addressRegion: "Tamil Nadu",
-      postalCode: "629002",
-      addressCountry: "IN",
-    },
     identifier: [
       { "@type": "PropertyValue", name: "Trust Registration", value: SITE.compliance.trustReg },
-      { "@type": "PropertyValue", name: "PAN", value: SITE.compliance.pan },
       { "@type": "PropertyValue", name: "DARPAN", value: SITE.compliance.darpan },
     ],
   };

@@ -68,7 +68,6 @@ export function Footer() {
                 {SITE.email}
               </a>
             </li>
-            <li className="leading-relaxed">{SITE.address}</li>
           </ul>
           <div className="mt-4 flex flex-wrap gap-4 text-sm">
             <a href="#" className="hover:text-primary" aria-label="Twitter">
@@ -90,10 +89,7 @@ export function Footer() {
       <div className="border-t border-background/30">
         <div className="container-x flex flex-col gap-2 py-6 text-xs sm:flex-row sm:justify-between">
           <p>© {new Date().getFullYear()} SEED Foundation. All rights reserved.</p>
-          <p>
-            Trust Reg: {SITE.compliance.trustReg} | PAN: {SITE.compliance.pan} | DARPAN:{" "}
-            {SITE.compliance.darpan}
-          </p>
+          <p>Trust Reg: {SITE.compliance.trustReg} | DARPAN: {SITE.compliance.darpan}</p>
         </div>
       </div>
     </footer>

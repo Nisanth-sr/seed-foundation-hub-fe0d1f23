@@ -44,7 +44,6 @@ export default function GetInvolvedPage() {
           <div className="space-y-8">
             <div>
               <h3 className="text-2xl font-semibold">Visit us</h3>
-              <p className="mt-4 text-base leading-relaxed">{SITE.address}</p>
               <ul className="mt-6 space-y-2 text-base">
                 <li>
                   <span className="font-semibold">Email:</span>{" "}

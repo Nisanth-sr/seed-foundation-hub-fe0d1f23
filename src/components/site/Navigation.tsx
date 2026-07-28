@@ -19,7 +19,7 @@ export function Navigation() {
       <div className="container-x flex h-16 items-center justify-between gap-4">
         <Link href="/" className="flex items-center gap-2" aria-label="SEED Foundation home">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/seed-logo.png" alt="SEED Foundation" className="h-10 w-auto object-contain" />
+          <img src="/images/seed-logo.png" alt="SEED Foundation" className="h-10 w-auto object-contain mix-blend-multiply" />
         </Link>
 
         <nav className="hidden items-center gap-6 lg:flex" aria-label="Primary">

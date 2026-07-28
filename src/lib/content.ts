@@ -5,18 +5,15 @@ export const SITE = {
   email: "contact@seedfound.org",
   phone: "[Phone to be provided]",
   hours: "[Hours to be provided]",
-  address: "No. 36, R.C. Street, Elankadai, Kottar Post, Nagercoil, Tamil Nadu 629002",
   mapEmbed:
     "https://maps.google.com/maps?q=8.2,77.4&z=14&output=embed",
   compliance: {
     trustReg: "R/Idalagudi/Book-4/23/2018",
-    pan: "AAWTS0127Q",
     darpan: "TN/2026/1130617",
   },
 } as const;
 
 export const NAV_LINKS = [
-  { href: "/", label: "Home" },
   { href: "/about", label: "About" },
   { href: "/our-stories", label: "Our Stories" },
   { href: "/get-involved", label: "Get Involved" },
@@ -163,6 +160,7 @@ export const STORIES: {
     excerpt:
       "The \"You Can\" Cancer Awareness Program brought practical knowledge on prevention and early detection to Kadiapattanam Village.",
     body: "The \"You Can\" Cancer Awareness Program brought together residents of Kadiapattanam Village to learn about cancer prevention, early detection, and the importance of timely medical consultation. Through educational sessions and open discussions, participants gained practical knowledge while myths surrounding cancer were addressed through direct interaction.",
+    image: "/images/stories/helping-communities-understand-cancer.png",
   },
   {
     slug: "encouraging-conversations-around-mental-health",
@@ -172,6 +170,7 @@ export const STORIES: {
     excerpt:
       "\"Missing Numbers\" used storytelling through film to help students discuss mental health openly.",
     body: "\"Missing Numbers\" used storytelling through film to encourage students to discuss mental health openly. The initiative aimed to reduce stigma, promote early help-seeking, and remind young people that support is available.",
+    image: "/images/stories/encouraging-conversations-around-mental-health.png",
   },
   {
     slug: "protecting-our-coastline",
