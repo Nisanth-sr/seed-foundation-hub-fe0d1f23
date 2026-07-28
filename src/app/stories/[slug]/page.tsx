@@ -36,7 +36,7 @@ export default async function StoryDetailPage({
 
   return (
     <>
-      <Hero title={story.title} height="medium" align="left" />
+      <Hero title={story.title} height="medium" align="left" backgroundImage={story.image} />
       <Section spacing="md">
         <div className="mb-6 flex flex-wrap items-center gap-4">
           <span className="bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
@@ -62,6 +62,7 @@ export default async function StoryDetailPage({
               excerpt={s.excerpt}
               category={s.category}
               href={`/stories/${s.slug}`}
+              image={s.image}
             />
           ))}
         </div>

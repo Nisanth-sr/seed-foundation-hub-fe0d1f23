@@ -83,6 +83,7 @@ export default function HomePage() {
               excerpt={s.excerpt}
               category={s.category}
               href={`/stories/${s.slug}`}
+              image={s.image}
             />
           ))}
         </div>

@@ -29,6 +29,7 @@ export default function StoriesPage() {
               excerpt={s.excerpt}
               category={s.category}
               href={`/stories/${s.slug}`}
+              image={s.image}
             />
           ))}
         </div>

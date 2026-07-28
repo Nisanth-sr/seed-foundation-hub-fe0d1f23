@@ -6,16 +6,30 @@ type ArticleCardProps = {
   excerpt: string;
   category: string;
   href: string;
+  image?: string;
 };
 
-export function ArticleCard({ title, excerpt, category, href }: ArticleCardProps) {
+export function ArticleCard({ title, excerpt, category, href, image }: ArticleCardProps) {
   return (
     <Link
       href={href}
       className="group flex flex-col border border-foreground bg-background transition-transform duration-300 hover:scale-[1.02]"
     >
-      <div className="flex aspect-[4/3] items-center justify-center bg-foreground">
-        <span className="text-sm font-semibold uppercase tracking-wide text-primary">{category}</span>
+      <div className="relative aspect-[4/3] overflow-hidden bg-foreground">
+        {image ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={image}
+            alt=""
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center">
+            <span className="text-sm font-semibold uppercase tracking-wide text-primary">
+              {category}
+            </span>
+          </div>
+        )}
       </div>
       <div className="flex flex-1 flex-col p-6">
         <span className="mb-3 inline-block w-fit bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">

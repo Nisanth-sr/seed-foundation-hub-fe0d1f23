@@ -155,6 +155,7 @@ export const STORIES: {
   focusArea: FocusArea;
   excerpt: string;
   body: string;
+  image?: string;
 }[] = [
   {
     slug: "helping-communities-understand-cancer",
@@ -182,6 +183,7 @@ export const STORIES: {
     excerpt:
       "At Colachel Harbour, awareness, waste segregation, and cleanup efforts put residents at the center of coastal care.",
     body: "At Colachel Harbour, awareness campaigns, waste segregation bins, and a community cleanup effort encouraged residents to take an active role in protecting marine life and reducing coastal pollution.",
+    image: "/images/stories/protecting-our-coastline.png",
   },
   {
     slug: "supporting-families-during-crisis",
@@ -191,6 +193,7 @@ export const STORIES: {
     excerpt:
       "After the 2018 Kerala floods, a rice donation drive mobilized students and faculty to support affected families.",
     body: "Following the 2018 Kerala floods, SEED FOUNDATION partnered with St. John's College of Arts and Science to organize a rice donation drive that mobilized students, staff, and faculty to support flood-affected families with essential food supplies.",
+    image: "/images/stories/supporting-families-during-crisis.png",
   },
   {
     slug: "guiding-students-towards-their-future",
@@ -200,6 +203,7 @@ export const STORIES: {
     excerpt:
       "Career guidance sessions in Puthoor Village helped students explore pathways aligned with their aspirations.",
     body: "Students from Puthoor Village participated in career guidance sessions that explored educational pathways, career options, and practical planning. Interactive discussions helped participants better understand opportunities aligned with their interests and aspirations.",
+    image: "/images/stories/guiding-students-towards-their-future.png",
   },
 ];
 
