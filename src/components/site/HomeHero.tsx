@@ -34,7 +34,7 @@ export function HomeHero() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/images/hero-cover.png"
-              alt="A human hand and a robotic hand reach toward a globe and a sapling growing from an open book"
+              alt="A group of joyful schoolboys in light blue uniforms huddling together and smiling at the camera"
               className="relative z-10 aspect-[2/1] w-full object-cover"
               style={{
                 clipPath: "polygon(0 10%, 100% 0, 100% 90%, 0 100%)",
