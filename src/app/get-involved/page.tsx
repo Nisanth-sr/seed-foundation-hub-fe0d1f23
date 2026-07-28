@@ -59,15 +59,6 @@ export default function GetInvolvedPage() {
                 </li>
               </ul>
             </div>
-            <div className="aspect-[4/3] w-full border border-foreground">
-              <iframe
-                title="SEED Foundation location map"
-                src={SITE.mapEmbed}
-                className="h-full w-full"
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              />
-            </div>
           </div>
         </div>
       </Section>

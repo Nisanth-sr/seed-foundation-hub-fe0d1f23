@@ -58,7 +58,7 @@ export default async function OurStoryDetailPage({
             <ShareButtons title={story.title} path={`/our-stories/${slug}`} />
           </div>
           <article className="prose-seed max-w-3xl">
-            <p className="text-lg leading-relaxed md:text-xl">{story.body}</p>
+            <p className="whitespace-pre-line text-lg leading-relaxed md:text-xl">{story.body}</p>
           </article>
           <div className="mt-12">
             <Button asChild variant="secondary">
