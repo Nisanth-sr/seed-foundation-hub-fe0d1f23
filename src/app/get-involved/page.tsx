@@ -20,7 +20,7 @@ export default function GetInvolvedPage() {
         align="left"
       />
       <Section>
-        <div className="mb-16 grid gap-8 md:grid-cols-3">
+        <div className="mb-16 grid gap-8 md:grid-cols-2">
           {GET_INVOLVED.paths.map((p) => (
             <div key={p.id} id={p.id} className="border border-foreground p-6 md:p-8 scroll-mt-24">
               <h2 className="text-2xl font-semibold">{p.title}</h2>

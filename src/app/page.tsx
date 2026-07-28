@@ -17,7 +17,6 @@ import {
   HERO,
   BELIEF,
   PILLARS,
-  PROGRAMS,
   STORIES,
   APPROACH_STEPS,
   IMPACT,
@@ -75,30 +74,21 @@ export default function HomePage() {
         </div>
       </Section>
 
-      <Section
-        title="Creating Impact Through Community Action"
-        subtitle="Real change happens when communities participate in solving challenges together."
-      >
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {PROGRAMS.slice(0, 3).map((p) => (
-            <Link
-              key={p.slug}
-              href={`/our-work/${p.slug}`}
-              className="group relative flex min-h-[280px] flex-col justify-end overflow-hidden border border-foreground bg-foreground p-6 text-background transition-transform hover:scale-[1.02]"
-            >
-              <span className="mb-2 text-xs font-semibold uppercase tracking-wide text-primary">
-                {p.focusLabel}
-              </span>
-              <h3 className="text-xl font-semibold">{p.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-background/90 opacity-0 transition-opacity group-hover:opacity-100 md:opacity-100">
-                {p.summary}
-              </p>
-            </Link>
+      <Section title="Stories of Impact" subtitle="Community action, told through the people and places we serve.">
+        <div className="grid gap-8 md:grid-cols-3">
+          {STORIES.slice(0, 3).map((s) => (
+            <ArticleCard
+              key={s.slug}
+              title={s.title}
+              excerpt={s.excerpt}
+              category={s.category}
+              href={`/stories/${s.slug}`}
+            />
           ))}
         </div>
         <div className="mt-10">
-          <Button asChild variant="secondary">
-            <Link href="/our-work">View all programs</Link>
+          <Button asChild variant="primary">
+            <Link href="/stories">Read all stories</Link>
           </Button>
         </div>
       </Section>
@@ -135,25 +125,6 @@ export default function HomePage() {
             </li>
           ))}
         </ol>
-      </Section>
-
-      <Section title="Stories of Impact" subtitle="Community action, told through the people and places we serve.">
-        <div className="grid gap-8 md:grid-cols-3">
-          {STORIES.slice(0, 3).map((s) => (
-            <ArticleCard
-              key={s.slug}
-              title={s.title}
-              excerpt={s.excerpt}
-              category={s.category}
-              href={`/stories/${s.slug}`}
-            />
-          ))}
-        </div>
-        <div className="mt-10">
-          <Button asChild variant="primary">
-            <Link href="/stories">Read all stories</Link>
-          </Button>
-        </div>
       </Section>
 
       <Section>

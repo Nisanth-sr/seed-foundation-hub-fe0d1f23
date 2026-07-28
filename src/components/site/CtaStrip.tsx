@@ -13,15 +13,7 @@ export function CtaStrip() {
         </p>
         <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
           <Button asChild variant="primary" size="lg">
-            <Link href="/get-involved#donate">Donate Now</Link>
-          </Button>
-          <Button
-            asChild
-            variant="outline"
-            size="lg"
-            className="border-background text-background hover:bg-background hover:text-foreground"
-          >
-            <Link href="/get-involved#partner">Become a Partner</Link>
+            <Link href="/get-involved#volunteer">Get Involved</Link>
           </Button>
         </div>
       </div>

@@ -268,12 +268,6 @@ export const GET_INVOLVED = {
     "Positive change grows through collaboration. Whether you are a student, educator, volunteer, community leader, or institution, there are opportunities to participate in awareness programs, community initiatives, educational outreach, and humanitarian activities that strengthen communities together.",
   paths: [
     {
-      id: "donate",
-      title: "Donate",
-      description:
-        "Your support helps fund awareness sessions, educational outreach, environmental campaigns, and humanitarian relief. Every contribution strengthens community-led action across Tamil Nadu.",
-    },
-    {
       id: "volunteer",
       title: "Volunteer",
       description:

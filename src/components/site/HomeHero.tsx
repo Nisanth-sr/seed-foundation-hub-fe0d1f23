@@ -1,8 +1,65 @@
+"use client";
+
+import * as React from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { HERO } from "@/lib/content";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+  type CarouselApi,
+} from "@/components/ui/carousel";
+
+const HERO_IMAGES = [
+  {
+    src: "/images/hero-cover.png",
+    alt: "A group of joyful schoolboys in light blue uniforms huddling together and smiling at the camera",
+  },
+  {
+    src: "/images/hero-1.png",
+    alt: "A schoolgirl in uniform looking at the camera in a bright classroom",
+  },
+  {
+    src: "/images/hero-2.png",
+    alt: "A schoolgirl in uniform with flowers in her hair smiling gently",
+  },
+  {
+    src: "/images/hero-3.png",
+    alt: "Four schoolgirls walking together down a path with backpacks",
+  },
+  {
+    src: "/images/hero-4.png",
+    alt: "Four children smiling outdoors under a clear blue sky",
+  },
+] as const;
 
 export function HomeHero() {
+  const [api, setApi] = React.useState<CarouselApi>();
+  const [current, setCurrent] = React.useState(0);
+
+  React.useEffect(() => {
+    if (!api) return;
+
+    const onSelect = () => setCurrent(api.selectedScrollSnap());
+    onSelect();
+    api.on("select", onSelect);
+
+    return () => {
+      api.off("select", onSelect);
+    };
+  }, [api]);
+
+  React.useEffect(() => {
+    if (!api) return;
+    const id = window.setInterval(() => {
+      api.scrollNext();
+    }, 5000);
+    return () => window.clearInterval(id);
+  }, [api]);
+
   return (
     <section className="relative isolate overflow-hidden bg-primary text-foreground">
       <div className="container-x relative z-10 py-12 md:py-16 lg:py-20">
@@ -31,30 +88,70 @@ export function HomeHero() {
           />
 
           <div className="relative">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/images/hero-cover.png"
-              alt="A group of joyful schoolboys in light blue uniforms huddling together and smiling at the camera"
-              className="relative z-10 aspect-[2/1] w-full object-cover"
-              style={{
-                clipPath: "polygon(0 10%, 100% 0, 100% 90%, 0 100%)",
-              }}
-            />
+            <Carousel
+              setApi={setApi}
+              opts={{ loop: true, align: "start" }}
+              className="relative z-10 w-full"
+            >
+              <div
+                className="overflow-hidden"
+                style={{
+                  clipPath: "polygon(0 10%, 100% 0, 100% 90%, 0 100%)",
+                }}
+              >
+                <CarouselContent className="-ml-0">
+                  {HERO_IMAGES.map((image) => (
+                    <CarouselItem key={image.src} className="pl-0 basis-full">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={image.src}
+                        alt={image.alt}
+                        className="aspect-[2/1] w-full object-cover"
+                      />
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+              </div>
+
+              <CarouselPrevious
+                className="left-3 top-1/2 z-30 h-10 w-10 -translate-y-1/2 border-foreground bg-background/90 text-foreground hover:bg-background md:left-4"
+                variant="outline"
+              />
+              <CarouselNext
+                className="right-3 top-1/2 z-30 h-10 w-10 -translate-y-1/2 border-foreground bg-background/90 text-foreground hover:bg-background md:right-4"
+                variant="outline"
+              />
+            </Carousel>
+
+            <div className="absolute bottom-[14%] left-1/2 z-30 flex -translate-x-1/2 gap-2">
+              {HERO_IMAGES.map((image, index) => (
+                <button
+                  key={image.src}
+                  type="button"
+                  aria-label={`Go to slide ${index + 1}`}
+                  aria-current={current === index}
+                  onClick={() => api?.scrollTo(index)}
+                  className={`h-2.5 w-2.5 border border-foreground transition-colors ${
+                    current === index ? "bg-foreground" : "bg-background/70"
+                  }`}
+                />
+              ))}
+            </div>
 
             {/* Open “gate” accents — incomplete corners, never a closed box */}
             <span
               aria-hidden
-              className="absolute -left-1 top-[8%] z-20 h-16 w-16 border-l-[6px] border-t-[6px] border-foreground md:h-24 md:w-24 md:border-l-8 md:border-t-8"
+              className="pointer-events-none absolute -left-1 top-[8%] z-20 h-16 w-16 border-l-[6px] border-t-[6px] border-foreground md:h-24 md:w-24 md:border-l-8 md:border-t-8"
             />
             <span
               aria-hidden
-              className="absolute -right-1 bottom-[8%] z-20 h-16 w-16 border-b-[6px] border-r-[6px] border-foreground md:h-24 md:w-24 md:border-b-8 md:border-r-8"
+              className="pointer-events-none absolute -right-1 bottom-[8%] z-20 h-16 w-16 border-b-[6px] border-r-[6px] border-foreground md:h-24 md:w-24 md:border-b-8 md:border-r-8"
             />
 
             {/* Diagonal slash accent */}
             <span
               aria-hidden
-              className="absolute right-[12%] top-0 z-20 h-full w-[3px] origin-top rotate-[8deg] bg-foreground"
+              className="pointer-events-none absolute right-[12%] top-0 z-20 h-full w-[3px] origin-top rotate-[8deg] bg-foreground"
             />
           </div>
         </div>

@@ -43,11 +43,6 @@ export function Navigation() {
               Career Assessment
             </Button>
           </Link>
-          <Link href="/get-involved#donate" className="hidden md:inline-flex">
-            <Button variant="primary" size="sm">
-              Donate
-            </Button>
-          </Link>
           <button
             type="button"
             className="inline-flex h-11 w-11 items-center justify-center rounded border border-foreground lg:hidden"
@@ -75,11 +70,6 @@ export function Navigation() {
             ))}
             <Link href="/career" onClick={() => setOpen(false)} className="rounded px-2 py-3 text-sm font-medium">
               Career Assessment
-            </Link>
-            <Link href="/get-involved#donate" onClick={() => setOpen(false)}>
-              <Button className="mt-2 w-full" variant="primary">
-                Donate
-              </Button>
             </Link>
           </nav>
         </div>

@@ -18,7 +18,7 @@ export function Footer() {
           <img
             src="/images/seed-logo.png"
             alt="SEED Foundation"
-            className="mb-4 h-12 w-auto brightness-0 invert"
+            className="mb-4 h-12 w-auto bg-background object-contain p-1.5"
           />
           <p className="text-sm leading-relaxed">
             Helping communities gain knowledge, strengthen resilience, and improve wellbeing through
