@@ -42,19 +42,19 @@
   --card-foreground: #000000;
   --popover: #ffffff;
   --popover-foreground: #000000;
-  --primary: #8ee924;
+  --primary: #8ddd30;
   --primary-foreground: #000000;
   --secondary: #000000;
   --secondary-foreground: #ffffff;
   --muted: #ffffff;
   --muted-foreground: #000000;
-  --accent: #8ee924;
+  --accent: #8ddd30;
   --accent-foreground: #000000;
   --destructive: #000000;
   --destructive-foreground: #ffffff;
   --border: #000000;
   --input: #000000;
-  --ring: #8ee924;
+  --ring: #8ddd30;
 }
 
 .dark {
@@ -64,19 +64,19 @@
   --card-foreground: #ffffff;
   --popover: #000000;
   --popover-foreground: #ffffff;
-  --primary: #8ee924;
+  --primary: #8ddd30;
   --primary-foreground: #000000;
   --secondary: #ffffff;
   --secondary-foreground: #000000;
   --muted: #000000;
   --muted-foreground: #ffffff;
-  --accent: #8ee924;
+  --accent: #8ddd30;
   --accent-foreground: #000000;
   --destructive: #ffffff;
   --destructive-foreground: #000000;
   --border: #ffffff;
   --input: #ffffff;
-  --ring: #8ee924;
+  --ring: #8ddd30;
 }
 
 @layer base {

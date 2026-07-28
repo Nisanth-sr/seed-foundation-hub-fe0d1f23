@@ -10,7 +10,7 @@ Next.js 15 (App Router) website for SEED Foundation — marketing site + career 
 
 ## Color palette
 
-Only three colors: seed green `#8ee924`, black `#000000`, white `#ffffff`.
+Only three colors: seed green `#8ddd30`, black `#000000`, white `#ffffff`.
 
 ## Setup
 
