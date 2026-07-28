@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Facebook, Instagram, Linkedin, Twitter, Youtube } from "lucide-react";
 import { SITE, NAV_LINKS } from "@/lib/content";
 
 export function Footer() {
@@ -69,18 +70,51 @@ export function Footer() {
               </a>
             </li>
           </ul>
-          <div className="mt-4 flex flex-wrap gap-4 text-sm">
-            <a href="#" className="hover:text-primary" aria-label="Twitter">
-              Twitter
+          <div className="mt-4 flex flex-wrap items-center gap-4">
+            <a
+              href="https://www.instagram.com/seed_foundation18/"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-primary"
+              aria-label="Instagram"
+            >
+              <Instagram className="h-5 w-5" />
             </a>
-            <a href="#" className="hover:text-primary" aria-label="LinkedIn">
-              LinkedIn
+            <a
+              href="https://www.facebook.com/profile.php?id=100068626972853"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-primary"
+              aria-label="Facebook"
+            >
+              <Facebook className="h-5 w-5" />
             </a>
-            <a href="#" className="hover:text-primary" aria-label="Instagram">
-              Instagram
+            <a
+              href="https://www.linkedin.com/company/seed-foundation18/"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-primary"
+              aria-label="LinkedIn"
+            >
+              <Linkedin className="h-5 w-5" />
             </a>
-            <a href="#" className="hover:text-primary" aria-label="Facebook">
-              Facebook
+            <a
+              href="https://x.com/seedfound18"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-primary"
+              aria-label="X (Twitter)"
+            >
+              <Twitter className="h-5 w-5" />
+            </a>
+            <a
+              href="https://www.youtube.com/@seedfoundation349"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-primary"
+              aria-label="YouTube"
+            >
+              <Youtube className="h-5 w-5" />
             </a>
           </div>
         </div>
