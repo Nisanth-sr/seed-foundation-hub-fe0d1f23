@@ -11,6 +11,8 @@ import { supabaseAdmin } from "./supabase/admin";
 import type { AnalysisResult } from "./analysis-prompt";
 import type { Json } from "./supabase/types";
 
+export type AnalysisStatus = "draft" | "approved" | "none";
+
 export type UserListRow = {
   id: string;
   email: string;
@@ -22,6 +24,7 @@ export type UserListRow = {
   riasecStatus: string | null;
   hollandCode: string | null;
   hasAnalysis: boolean;
+  analysisStatus: AnalysisStatus;
 };
 
 export type AssessmentBlock = {
@@ -50,6 +53,9 @@ export type UserDetail = {
     model: string;
     promptVersion: string;
     analysis: AnalysisResult;
+    status: "draft" | "approved";
+    approvedAt: string | null;
+    approvedBy: string | null;
     createdAt: string;
     updatedAt: string;
   } | null;
@@ -78,11 +84,11 @@ export async function listUsers(): Promise<UserListRow[]> {
   const [{ data: profiles }, { data: assessments }, { data: analyses }] = await Promise.all([
     supabaseAdmin.from("profiles").select("id,display_name,locale,created_at"),
     supabaseAdmin.from("assessments").select("user_id,type,status,scores,completed_at"),
-    supabaseAdmin.from("assessment_analyses").select("user_id"),
+    supabaseAdmin.from("assessment_analyses").select("user_id,status"),
   ]);
 
   const profileMap = new Map((profiles ?? []).map((p) => [p.id, p]));
-  const analysisSet = new Set((analyses ?? []).map((a) => a.user_id));
+  const analysisMap = new Map((analyses ?? []).map((a) => [a.user_id, a.status]));
   type AssessmentRow = NonNullable<typeof assessments>[number];
   const byUser = new Map<string, { bigfive?: AssessmentRow; riasec?: AssessmentRow }>();
 
@@ -97,6 +103,9 @@ export async function listUsers(): Promise<UserListRow[]> {
     const p = profileMap.get(u.id);
     const a = byUser.get(u.id);
     const riScores = asScores<RiasecScores>(a?.riasec?.scores ?? null);
+    const aStatus = analysisMap.get(u.id);
+    const analysisStatus: AnalysisStatus =
+      aStatus === "approved" ? "approved" : aStatus === "draft" ? "draft" : "none";
     return {
       id: u.id,
       email: u.email ?? "",
@@ -107,7 +116,8 @@ export async function listUsers(): Promise<UserListRow[]> {
       bigfiveStatus: a?.bigfive?.status ?? null,
       riasecStatus: a?.riasec?.status ?? null,
       hollandCode: riScores && a?.riasec?.status === "completed" ? hollandCode(riScores) : null,
-      hasAnalysis: analysisSet.has(u.id),
+      hasAnalysis: analysisStatus !== "none",
+      analysisStatus,
     };
   });
 }
@@ -166,6 +176,9 @@ export async function getUserDetail(userId: string): Promise<UserDetail | null> 
           model: analysisRow.model,
           promptVersion: analysisRow.prompt_version,
           analysis: analysisRow.analysis as unknown as AnalysisResult,
+          status: (analysisRow.status === "approved" ? "approved" : "draft") as "draft" | "approved",
+          approvedAt: analysisRow.approved_at ?? null,
+          approvedBy: analysisRow.approved_by ?? null,
           createdAt: analysisRow.created_at,
           updatedAt: analysisRow.updated_at,
         }
@@ -251,9 +264,78 @@ export async function saveAnalysis(
       prompt_version: "v1",
       analysis: analysis as unknown as Json,
       scores_snapshot: scoresSnapshot as unknown as Json,
+      status: "draft",
+      approved_at: null,
+      approved_by: null,
       updated_at: new Date().toISOString(),
     },
     { onConflict: "user_id" },
   );
+  if (error) throw new Error(error.message);
+}
+
+function assertAnalysisShape(analysis: AnalysisResult) {
+  if (!analysis?.summary || !analysis?.personalityProfile) {
+    throw new Error("Invalid analysis: summary and personalityProfile are required");
+  }
+}
+
+export async function saveAnalysisDraft(userId: string, analysis: AnalysisResult) {
+  assertAnalysisShape(analysis);
+  const { data: existing, error: fetchErr } = await supabaseAdmin
+    .from("assessment_analyses")
+    .select("id")
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (fetchErr) throw new Error(fetchErr.message);
+  if (!existing) throw new Error("No analysis to update — generate one first");
+
+  const { error } = await supabaseAdmin
+    .from("assessment_analyses")
+    .update({
+      analysis: analysis as unknown as Json,
+      status: "draft",
+      approved_at: null,
+      approved_by: null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("user_id", userId);
+  if (error) throw new Error(error.message);
+}
+
+export async function approveAnalysis(userId: string, analysis: AnalysisResult, adminId: string) {
+  assertAnalysisShape(analysis);
+  const { data: existing, error: fetchErr } = await supabaseAdmin
+    .from("assessment_analyses")
+    .select("id")
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (fetchErr) throw new Error(fetchErr.message);
+  if (!existing) throw new Error("No analysis to approve — generate one first");
+
+  const now = new Date().toISOString();
+  const { error } = await supabaseAdmin
+    .from("assessment_analyses")
+    .update({
+      analysis: analysis as unknown as Json,
+      status: "approved",
+      approved_at: now,
+      approved_by: adminId,
+      updated_at: now,
+    })
+    .eq("user_id", userId);
+  if (error) throw new Error(error.message);
+}
+
+export async function unpublishAnalysis(userId: string) {
+  const { error } = await supabaseAdmin
+    .from("assessment_analyses")
+    .update({
+      status: "draft",
+      approved_at: null,
+      approved_by: null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("user_id", userId);
   if (error) throw new Error(error.message);
 }

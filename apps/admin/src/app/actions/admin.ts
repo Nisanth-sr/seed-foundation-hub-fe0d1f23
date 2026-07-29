@@ -3,16 +3,20 @@
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/auth";
 import {
+  approveAnalysis,
   getUserDetail,
   listUsers,
   saveAnalysis,
+  saveAnalysisDraft,
   setSavedCareers,
+  unpublishAnalysis,
   updateAssessmentAnswers,
   updateProfile,
 } from "@/lib/users";
 import { generateAnalysis } from "@/lib/openrouter";
 import { hollandCode } from "@seed/career-core";
 import type { BigFiveScores, RiasecScores } from "@seed/career-core";
+import type { AnalysisResult } from "@/lib/analysis-prompt";
 
 export async function actionListUsers() {
   await requireAdmin();
@@ -84,12 +88,57 @@ export async function actionGenerateAnalysis(userId: string) {
 
     revalidatePath(`/users/${userId}`);
     revalidatePath("/");
-    return { ok: true as const, analysis, model };
+    return { ok: true as const, analysis, model, status: "draft" as const };
   } catch (err) {
     // Return instead of throw so production UI shows the real message (not a digest).
     return {
       ok: false as const,
       error: err instanceof Error ? err.message : "Generation failed",
+    };
+  }
+}
+
+export async function actionSaveAnalysisDraft(userId: string, analysis: AnalysisResult) {
+  try {
+    await requireAdmin();
+    await saveAnalysisDraft(userId, analysis);
+    revalidatePath(`/users/${userId}`);
+    revalidatePath("/");
+    return { ok: true as const };
+  } catch (err) {
+    return {
+      ok: false as const,
+      error: err instanceof Error ? err.message : "Save failed",
+    };
+  }
+}
+
+export async function actionApproveAnalysis(userId: string, analysis: AnalysisResult) {
+  try {
+    const { user } = await requireAdmin();
+    await approveAnalysis(userId, analysis, user.id);
+    revalidatePath(`/users/${userId}`);
+    revalidatePath("/");
+    return { ok: true as const };
+  } catch (err) {
+    return {
+      ok: false as const,
+      error: err instanceof Error ? err.message : "Approve failed",
+    };
+  }
+}
+
+export async function actionUnpublishAnalysis(userId: string) {
+  try {
+    await requireAdmin();
+    await unpublishAnalysis(userId);
+    revalidatePath(`/users/${userId}`);
+    revalidatePath("/");
+    return { ok: true as const };
+  } catch (err) {
+    return {
+      ok: false as const,
+      error: err instanceof Error ? err.message : "Unpublish failed",
     };
   }
 }

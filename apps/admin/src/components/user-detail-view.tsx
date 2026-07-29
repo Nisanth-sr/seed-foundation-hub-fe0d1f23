@@ -12,9 +12,13 @@ import {
   type RiasecType,
 } from "@seed/career-core";
 import type { UserDetail } from "@/lib/users";
+import type { AnalysisResult } from "@/lib/analysis-prompt";
 import {
+  actionApproveAnalysis,
   actionGenerateAnalysis,
+  actionSaveAnalysisDraft,
   actionSetSavedCareers,
+  actionUnpublishAnalysis,
   actionUpdateAssessment,
   actionUpdateProfile,
 } from "@/app/actions/admin";
@@ -24,6 +28,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 
 const TRAIT_LABELS: Record<BigFiveTrait, string> = {
   O: "Openness",
@@ -52,6 +57,31 @@ export function UserDetailView({ detail: initial }: { detail: UserDetail }) {
   const [bfAnswers, setBfAnswers] = useState({ ...detail.bigFive.answers });
   const [riAnswers, setRiAnswers] = useState({ ...detail.riasec.answers });
   const [savedKeys, setSavedKeys] = useState(detail.savedCareers.map((s) => s.careerKey));
+  const [draftAnalysis, setDraftAnalysis] = useState<AnalysisResult | null>(
+    detail.analysis?.analysis ?? null,
+  );
+  const [analysisMeta, setAnalysisMeta] = useState(
+    detail.analysis
+      ? {
+          model: detail.analysis.model,
+          status: detail.analysis.status,
+          approvedAt: detail.analysis.approvedAt,
+          updatedAt: detail.analysis.updatedAt,
+        }
+      : null,
+  );
+
+  function patchAnalysis(patch: Partial<AnalysisResult>) {
+    setDraftAnalysis((prev) => (prev ? { ...prev, ...patch } : prev));
+  }
+
+  function patchPersonality(key: keyof AnalysisResult["personalityProfile"], value: string) {
+    setDraftAnalysis((prev) =>
+      prev
+        ? { ...prev, personalityProfile: { ...prev.personalityProfile, [key]: value } }
+        : prev,
+    );
+  }
 
   function saveProfile() {
     startTransition(async () => {
@@ -120,20 +150,69 @@ export function UserDetailView({ detail: initial }: { detail: UserDetail }) {
           return;
         }
         const { analysis, model } = result;
+        setDraftAnalysis(analysis);
+        setAnalysisMeta({
+          model,
+          status: "draft",
+          approvedAt: null,
+          updatedAt: new Date().toISOString(),
+        });
         setDetail((d) => ({
           ...d,
           analysis: {
             model,
             promptVersion: "v1",
             analysis,
+            status: "draft",
+            approvedAt: null,
+            approvedBy: null,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           },
         }));
-        toast.success("AI report generated");
+        toast.success("AI report generated (draft)");
       } catch (e) {
         toast.error(e instanceof Error ? e.message : "Generation failed");
       }
+    });
+  }
+
+  function saveDraft() {
+    if (!draftAnalysis) return;
+    startTransition(async () => {
+      const result = await actionSaveAnalysisDraft(detail.id, draftAnalysis);
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+      setAnalysisMeta((m) => (m ? { ...m, status: "draft", approvedAt: null } : m));
+      toast.success("Draft saved");
+    });
+  }
+
+  function approveAndSend() {
+    if (!draftAnalysis) return;
+    startTransition(async () => {
+      const result = await actionApproveAnalysis(detail.id, draftAnalysis);
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+      const now = new Date().toISOString();
+      setAnalysisMeta((m) => (m ? { ...m, status: "approved", approvedAt: now } : m));
+      toast.success("Approved & sent — user can see Seed Report");
+    });
+  }
+
+  function unpublish() {
+    startTransition(async () => {
+      const result = await actionUnpublishAnalysis(detail.id);
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+      setAnalysisMeta((m) => (m ? { ...m, status: "draft", approvedAt: null } : m));
+      toast.success("Unpublished — hidden from user");
     });
   }
 
@@ -287,82 +366,204 @@ export function UserDetailView({ detail: initial }: { detail: UserDetail }) {
 
         <TabsContent value="ai">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between gap-3">
+            <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <CardTitle>AI analysis</CardTitle>
-                {detail.analysis && (
-                  <p className="text-xs text-muted-foreground">
-                    {detail.analysis.model} · updated{" "}
-                    {new Date(detail.analysis.updatedAt).toLocaleString()}
+                <CardTitle className="flex flex-wrap items-center gap-2">
+                  AI analysis
+                  {analysisMeta && (
+                    <Badge variant={analysisMeta.status === "approved" ? "success" : "outline"}>
+                      {analysisMeta.status === "approved" ? "Approved" : "Draft"}
+                    </Badge>
+                  )}
+                </CardTitle>
+                {analysisMeta && (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {analysisMeta.model}
+                    {analysisMeta.approvedAt
+                      ? ` · approved ${new Date(analysisMeta.approvedAt).toLocaleString()}`
+                      : ` · updated ${new Date(analysisMeta.updatedAt).toLocaleString()}`}
                   </p>
                 )}
               </div>
-              <Button onClick={generateAi} disabled={pending}>
-                {detail.analysis ? "Regenerate" : "Generate"}
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                <Button onClick={generateAi} disabled={pending} variant="outline">
+                  {draftAnalysis ? "Regenerate" : "Generate"}
+                </Button>
+                {draftAnalysis && (
+                  <>
+                    <Button onClick={saveDraft} disabled={pending} variant="outline">
+                      Save draft
+                    </Button>
+                    <Button onClick={approveAndSend} disabled={pending}>
+                      Approve &amp; Send
+                    </Button>
+                    {analysisMeta?.status === "approved" && (
+                      <Button onClick={unpublish} disabled={pending} variant="secondary">
+                        Unpublish
+                      </Button>
+                    )}
+                  </>
+                )}
+              </div>
             </CardHeader>
             <CardContent className="space-y-4 text-sm">
-              {!detail.analysis && (
+              {!draftAnalysis && (
                 <p className="text-muted-foreground">
                   No report yet. Requires completed Big Five and RIASEC scores.
                 </p>
               )}
-              {detail.analysis && (
-                <>
-                  <section>
-                    <h3 className="mb-1 font-semibold">Summary</h3>
-                    <p className="whitespace-pre-wrap">{detail.analysis.analysis.summary}</p>
-                  </section>
-                  <section>
-                    <h3 className="mb-1 font-semibold">Personality</h3>
-                    <ul className="list-inside list-disc space-y-1">
-                      {Object.entries(detail.analysis.analysis.personalityProfile).map(([k, v]) => (
-                        <li key={k}>
-                          <strong>{k}:</strong> {v}
-                        </li>
-                      ))}
-                    </ul>
-                  </section>
-                  <section>
-                    <h3 className="mb-1 font-semibold">Strengths</h3>
-                    <ul className="list-inside list-disc">
-                      {detail.analysis.analysis.strengths.map((s, i) => (
-                        <li key={i}>{s}</li>
-                      ))}
-                    </ul>
-                  </section>
-                  <section>
-                    <h3 className="mb-1 font-semibold">Growth areas</h3>
-                    <ul className="list-inside list-disc">
-                      {detail.analysis.analysis.growthAreas.map((s, i) => (
-                        <li key={i}>{s}</li>
-                      ))}
-                    </ul>
-                  </section>
-                  <section>
-                    <h3 className="mb-1 font-semibold">Career guidance</h3>
-                    <p className="whitespace-pre-wrap">{detail.analysis.analysis.careerGuidance}</p>
-                  </section>
-                  <section>
-                    <h3 className="mb-1 font-semibold">Recommended paths</h3>
-                    <ul className="list-inside list-disc">
-                      {detail.analysis.analysis.recommendedPaths.map((s, i) => (
-                        <li key={i}>{s}</li>
-                      ))}
-                    </ul>
-                  </section>
-                  <section>
-                    <h3 className="mb-1 font-semibold">Counselor notes</h3>
-                    <p className="whitespace-pre-wrap">{detail.analysis.analysis.counselorNotes}</p>
-                  </section>
-                  <p className="text-xs text-muted-foreground">{detail.analysis.analysis.disclaimer}</p>
-                </>
+              {draftAnalysis && (
+                <div className="space-y-4">
+                  <Field label="Summary">
+                    <TextArea
+                      value={draftAnalysis.summary}
+                      onChange={(v) => patchAnalysis({ summary: v })}
+                      rows={4}
+                    />
+                  </Field>
+                  {(
+                    [
+                      ["openness", "Openness"],
+                      ["conscientiousness", "Conscientiousness"],
+                      ["extraversion", "Extraversion"],
+                      ["agreeableness", "Agreeableness"],
+                      ["emotionalStability", "Emotional stability"],
+                    ] as const
+                  ).map(([key, label]) => (
+                    <Field key={key} label={label}>
+                      <TextArea
+                        value={draftAnalysis.personalityProfile[key]}
+                        onChange={(v) => patchPersonality(key, v)}
+                        rows={2}
+                      />
+                    </Field>
+                  ))}
+                  <Field label="Behavioral patterns (one per line)">
+                    <TextArea
+                      value={draftAnalysis.behavioralPatterns.join("\n")}
+                      onChange={(v) =>
+                        patchAnalysis({
+                          behavioralPatterns: v.split("\n").map((s) => s.trim()).filter(Boolean),
+                        })
+                      }
+                      rows={3}
+                    />
+                  </Field>
+                  <Field label="Strengths (one per line)">
+                    <TextArea
+                      value={draftAnalysis.strengths.join("\n")}
+                      onChange={(v) =>
+                        patchAnalysis({
+                          strengths: v.split("\n").map((s) => s.trim()).filter(Boolean),
+                        })
+                      }
+                      rows={3}
+                    />
+                  </Field>
+                  <Field label="Growth areas (one per line)">
+                    <TextArea
+                      value={draftAnalysis.growthAreas.join("\n")}
+                      onChange={(v) =>
+                        patchAnalysis({
+                          growthAreas: v.split("\n").map((s) => s.trim()).filter(Boolean),
+                        })
+                      }
+                      rows={3}
+                    />
+                  </Field>
+                  <Field label="Work style">
+                    <TextArea
+                      value={draftAnalysis.workStyle}
+                      onChange={(v) => patchAnalysis({ workStyle: v })}
+                      rows={2}
+                    />
+                  </Field>
+                  <Field label="Team & social">
+                    <TextArea
+                      value={draftAnalysis.teamAndSocial}
+                      onChange={(v) => patchAnalysis({ teamAndSocial: v })}
+                      rows={2}
+                    />
+                  </Field>
+                  <Field label="Stress & resilience">
+                    <TextArea
+                      value={draftAnalysis.stressAndResilience}
+                      onChange={(v) => patchAnalysis({ stressAndResilience: v })}
+                      rows={2}
+                    />
+                  </Field>
+                  <Field label="Career guidance">
+                    <TextArea
+                      value={draftAnalysis.careerGuidance}
+                      onChange={(v) => patchAnalysis({ careerGuidance: v })}
+                      rows={4}
+                    />
+                  </Field>
+                  <Field label="Recommended paths (one per line)">
+                    <TextArea
+                      value={draftAnalysis.recommendedPaths.join("\n")}
+                      onChange={(v) =>
+                        patchAnalysis({
+                          recommendedPaths: v.split("\n").map((s) => s.trim()).filter(Boolean),
+                        })
+                      }
+                      rows={3}
+                    />
+                  </Field>
+                  <Field label="Counselor notes (admin only — not shown to user)">
+                    <TextArea
+                      value={draftAnalysis.counselorNotes}
+                      onChange={(v) => patchAnalysis({ counselorNotes: v })}
+                      rows={3}
+                    />
+                  </Field>
+                  <Field label="Disclaimer">
+                    <TextArea
+                      value={draftAnalysis.disclaimer}
+                      onChange={(v) => patchAnalysis({ disclaimer: v })}
+                      rows={2}
+                    />
+                  </Field>
+                </div>
               )}
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="space-y-1.5">
+      <Label>{label}</Label>
+      {children}
+    </div>
+  );
+}
+
+function TextArea({
+  value,
+  onChange,
+  rows = 3,
+  className,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  rows?: number;
+  className?: string;
+}) {
+  return (
+    <textarea
+      className={cn(
+        "w-full rounded border border-foreground bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-primary",
+        className,
+      )}
+      rows={rows}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+    />
   );
 }
 

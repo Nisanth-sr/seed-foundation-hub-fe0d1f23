@@ -66,3 +66,11 @@ In Supabase Dashboard → Authentication → URL Configuration, add:
 8. Keep the existing marketing/career Vercel project Root Directory as `/`
 
 Do **not** edit `is_admin` from the UI — promote/demote only via SQL or Table Editor (DB trigger blocks client self-promotion).
+
+## Seed Report (Approve & Send)
+
+1. Apply migration `supabase/migrations/20260729100000_assessment_analyses_publish.sql` (`supabase db push` or SQL Editor).
+2. In admin → user → **AI Report**: Generate, edit any fields, **Save draft**, then **Approve & Send**.
+3. The user sees a **Seed Report** card on `/career/dashboard` only while status is `approved`.
+4. **Unpublish** returns the report to draft and hides it from the user.
+5. Regenerating AI resets the report to draft (must approve again).

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-type Filter = "all" | "completed" | "incomplete" | "ai";
+type Filter = "all" | "completed" | "incomplete" | "ai" | "approved";
 
 export function UserTable({ users }: { users: UserListRow[] }) {
   const [q, setQ] = useState("");
@@ -20,7 +20,8 @@ export function UserTable({ users }: { users: UserListRow[] }) {
         return false;
       if (filter === "incomplete" && u.bigfiveStatus === "completed" && u.riasecStatus === "completed")
         return false;
-      if (filter === "ai" && !u.hasAnalysis) return false;
+      if (filter === "ai" && u.analysisStatus === "none") return false;
+      if (filter === "approved" && u.analysisStatus !== "approved") return false;
       if (!s) return true;
       return (
         u.email.toLowerCase().includes(s) ||
@@ -45,6 +46,7 @@ export function UserTable({ users }: { users: UserListRow[] }) {
             ["completed", "Completed both"],
             ["incomplete", "Incomplete"],
             ["ai", "Has AI report"],
+            ["approved", "Approved"],
           ] as const
         ).map(([id, label]) => (
           <Button
@@ -69,7 +71,7 @@ export function UserTable({ users }: { users: UserListRow[] }) {
               <th className="px-3 py-2 font-semibold">Big Five</th>
               <th className="px-3 py-2 font-semibold">RIASEC</th>
               <th className="px-3 py-2 font-semibold">Holland</th>
-              <th className="px-3 py-2 font-semibold">AI</th>
+              <th className="px-3 py-2 font-semibold">Seed Report</th>
               <th className="px-3 py-2 font-semibold">Joined</th>
             </tr>
           </thead>
@@ -91,9 +93,7 @@ export function UserTable({ users }: { users: UserListRow[] }) {
                 </td>
                 <td className="px-3 py-2 font-mono text-xs">{u.hollandCode ?? "—"}</td>
                 <td className="px-3 py-2">
-                  <Badge variant={u.hasAnalysis ? "success" : "muted"}>
-                    {u.hasAnalysis ? "Done" : "Pending"}
-                  </Badge>
+                  <AnalysisBadge status={u.analysisStatus} />
                 </td>
                 <td className="px-3 py-2 text-muted-foreground">
                   {new Date(u.createdAt).toLocaleDateString()}
@@ -117,5 +117,11 @@ export function UserTable({ users }: { users: UserListRow[] }) {
 function StatusBadge({ status }: { status: string | null }) {
   if (status === "completed") return <Badge variant="success">Completed</Badge>;
   if (status === "in_progress") return <Badge variant="outline">In progress</Badge>;
+  return <Badge variant="muted">None</Badge>;
+}
+
+function AnalysisBadge({ status }: { status: UserListRow["analysisStatus"] }) {
+  if (status === "approved") return <Badge variant="success">Approved</Badge>;
+  if (status === "draft") return <Badge variant="outline">Draft</Badge>;
   return <Badge variant="muted">None</Badge>;
 }

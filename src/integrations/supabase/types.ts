@@ -107,31 +107,40 @@ export type Database = {
       assessment_analyses: {
         Row: {
           analysis: Json
+          approved_at: string | null
+          approved_by: string | null
           created_at: string
           id: string
           model: string
           prompt_version: string
           scores_snapshot: Json
+          status: string
           updated_at: string
           user_id: string
         }
         Insert: {
           analysis: Json
+          approved_at?: string | null
+          approved_by?: string | null
           created_at?: string
           id?: string
           model: string
           prompt_version?: string
           scores_snapshot: Json
+          status?: string
           updated_at?: string
           user_id: string
         }
         Update: {
           analysis?: Json
+          approved_at?: string | null
+          approved_by?: string | null
           created_at?: string
           id?: string
           model?: string
           prompt_version?: string
           scores_snapshot?: Json
+          status?: string
           updated_at?: string
           user_id?: string
         }
