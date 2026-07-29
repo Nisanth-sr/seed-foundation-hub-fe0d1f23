@@ -3,14 +3,22 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "dev": "next dev",
+    "dev:web": "next dev",
+    "dev:admin": "npm run dev -w @seed/admin",
     "build": "next build",
+    "build:admin": "npm run build -w @seed/admin",
     "start": "next start",
     "lint": "next lint",
     "format": "prettier --write ."
   },
   "dependencies": {
+    "@seed/career-core": "*",
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.15",

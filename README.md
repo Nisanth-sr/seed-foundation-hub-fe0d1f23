@@ -40,9 +40,14 @@ Server-only:
 
 ## Scripts
 
-- `npm run dev` — development server
-- `npm run build` — production build
+- `npm run dev` / `npm run dev:web` — marketing + career site (port 3000)
+- `npm run dev:admin` — admin console at [apps/admin](apps/admin) (port 3001)
+- `npm run build` / `npm run build:admin` — production builds
 - `npm start` — serve production build
+
+## Admin console
+
+Separate Next.js app in `apps/admin`, intended for **admin.seedfound.org** (own Vercel project, Root Directory `apps/admin`). See [apps/admin/README.md](apps/admin/README.md).
 
 ## Notes
 
