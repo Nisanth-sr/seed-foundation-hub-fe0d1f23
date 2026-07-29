@@ -115,14 +115,14 @@ export default function DashboardPage() {
               title={t("dash.bigfive")}
               status={bf?.status}
               pct={bfPct}
-              onStart={() => router.push("/career/assessment/bigfive")}
+              type="bigfive"
               statusLabel={t}
             />
             <AssessmentTile
               title={t("dash.riasec")}
               status={ri?.status}
               pct={riPct}
-              onStart={() => router.push("/career/assessment/riasec")}
+              type="riasec"
               statusLabel={t}
             />
             <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
@@ -298,15 +298,16 @@ function AssessmentTile({
   title,
   status,
   pct,
-  onStart,
+  type,
   statusLabel,
 }: {
   title: string;
   status: "in_progress" | "completed" | undefined;
   pct: number;
-  onStart: () => void;
+  type: "bigfive" | "riasec";
   statusLabel: (k: string) => string;
 }) {
+  const router = useRouter();
   const label =
     status === "completed"
       ? statusLabel("dash.status.completed")
@@ -315,6 +316,15 @@ function AssessmentTile({
         : statusLabel("dash.status.notstarted");
   const ctaKey =
     status === "completed" ? "dash.review" : status === "in_progress" ? "dash.resume" : "dash.start";
+
+  function onAction() {
+    if (status === "completed") {
+      router.push(`/career/results?type=${type}`);
+      return;
+    }
+    router.push(`/career/assessment/${type}`);
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -331,7 +341,7 @@ function AssessmentTile({
       <CardContent className="space-y-4">
         <Progress value={pct} />
         <Button
-          onClick={onStart}
+          onClick={onAction}
           className="w-full"
           variant={status === "completed" ? "outline" : "primary"}
         >
