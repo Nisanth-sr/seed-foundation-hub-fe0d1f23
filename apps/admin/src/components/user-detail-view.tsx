@@ -114,7 +114,46 @@ export function UserDetailView({ detail: initial }: { detail: UserDetail }) {
   function generateAi() {
     startTransition(async () => {
       try {
-        const { analysis, model } = await actionGenerateAnalysis(detail.id);
+        // #region agent log
+        fetch("http://127.0.0.1:7279/ingest/aa5631d9-35e0-4360-9d46-3bef15f7d91f", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "fa1da9" },
+          body: JSON.stringify({
+            sessionId: "fa1da9",
+            runId: "ai-gen-1",
+            hypothesisId: "E",
+            location: "user-detail-view.tsx:generateAi",
+            message: "client generate click",
+            data: {
+              userIdPrefix: detail.id.slice(0, 8),
+              hasBf: Boolean(detail.bigFive.scores),
+              hasRi: Boolean(detail.riasec.scores),
+            },
+            timestamp: Date.now(),
+          }),
+        }).catch(() => {});
+        // #endregion
+        const result = await actionGenerateAnalysis(detail.id);
+        if (!result.ok) {
+          // #region agent log
+          fetch("http://127.0.0.1:7279/ingest/aa5631d9-35e0-4360-9d46-3bef15f7d91f", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "fa1da9" },
+            body: JSON.stringify({
+              sessionId: "fa1da9",
+              runId: "post-fix",
+              hypothesisId: "B",
+              location: "user-detail-view.tsx:generateAi",
+              message: "action returned error",
+              data: { error: result.error.slice(0, 400) },
+              timestamp: Date.now(),
+            }),
+          }).catch(() => {});
+          // #endregion
+          toast.error(result.error);
+          return;
+        }
+        const { analysis, model } = result;
         setDetail((d) => ({
           ...d,
           analysis: {
@@ -125,8 +164,45 @@ export function UserDetailView({ detail: initial }: { detail: UserDetail }) {
             updatedAt: new Date().toISOString(),
           },
         }));
+        // #region agent log
+        fetch("http://127.0.0.1:7279/ingest/aa5631d9-35e0-4360-9d46-3bef15f7d91f", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "fa1da9" },
+          body: JSON.stringify({
+            sessionId: "fa1da9",
+            runId: "post-fix",
+            hypothesisId: "B",
+            location: "user-detail-view.tsx:generateAi",
+            message: "generate success",
+            data: { model, hasSummary: Boolean(analysis.summary) },
+            timestamp: Date.now(),
+          }),
+        }).catch(() => {});
+        // #endregion
         toast.success("AI report generated");
       } catch (e) {
+        // #region agent log
+        fetch("http://127.0.0.1:7279/ingest/aa5631d9-35e0-4360-9d46-3bef15f7d91f", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "fa1da9" },
+          body: JSON.stringify({
+            sessionId: "fa1da9",
+            runId: "ai-gen-1",
+            hypothesisId: "E",
+            location: "user-detail-view.tsx:generateAi",
+            message: "client caught error",
+            data: {
+              name: e instanceof Error ? e.name : typeof e,
+              message: e instanceof Error ? e.message.slice(0, 400) : String(e).slice(0, 400),
+              digest:
+                e && typeof e === "object" && "digest" in e
+                  ? String((e as { digest?: unknown }).digest)
+                  : null,
+            },
+            timestamp: Date.now(),
+          }),
+        }).catch(() => {});
+        // #endregion
         toast.error(e instanceof Error ? e.message : "Generation failed");
       }
     });

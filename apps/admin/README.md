@@ -44,7 +44,7 @@ WHERE id = (
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Anon/publishable key |
 | `SUPABASE_SERVICE_ROLE_KEY` | Server-only; list/edit all users |
 | `OPENROUTER_API_KEY` | AI reports |
-| `OPENROUTER_MODEL` | Optional model id |
+| `OPENROUTER_MODEL` | Optional; defaults to `openrouter/free` (auto free router). Avoid expired `:free` slugs. |
 | `APP_ORIGIN` / `NEXT_PUBLIC_SITE_URL` | `http://localhost:3001` locally; `https://admin.seedfound.org` in prod |
 
 ## Supabase Auth redirects
