@@ -30,17 +30,13 @@ See `.env.example`. Key public vars:
 |----------|---------|
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase anon/publishable key |
-| `NEXT_PUBLIC_ADMIN_CONSOLE_PATH` | Secret slug for `/internal/[slug]` |
 | `NEXT_PUBLIC_SITE_URL` | Canonical site URL (SEO) |
 
 Server-only:
 
 | Variable | Purpose |
 |----------|---------|
-| `SUPABASE_SERVICE_ROLE_KEY` | Admin API |
-| `ADMIN_PASSWORD` / `ADMIN_SESSION_SECRET` | Password admin console |
-| `OPENROUTER_API_KEY` | AI career analysis |
-| `APP_ORIGIN` | OpenRouter HTTP-Referer |
+| `SUPABASE_SERVICE_ROLE_KEY` | Service role (bypasses RLS; use only on the server) |
 
 ## Scripts
 

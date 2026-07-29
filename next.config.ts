@@ -16,11 +16,6 @@ const nextConfig: NextConfig = {
       process.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
       process.env.SUPABASE_PUBLISHABLE_KEY ||
       "",
-    NEXT_PUBLIC_ADMIN_CONSOLE_PATH:
-      process.env.NEXT_PUBLIC_ADMIN_CONSOLE_PATH ||
-      process.env.VITE_ADMIN_CONSOLE_PATH ||
-      process.env.ADMIN_CONSOLE_PATH ||
-      "",
     NEXT_PUBLIC_SITE_URL:
       process.env.NEXT_PUBLIC_SITE_URL ||
       (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://seedfound.org"),

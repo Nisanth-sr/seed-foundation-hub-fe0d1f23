@@ -11,8 +11,7 @@ import { cn } from "@/lib/utils";
 export function Navigation() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const isCareer = pathname.startsWith("/career") || pathname.startsWith("/internal");
-  if (isCareer) return null;
+  if (pathname.startsWith("/career")) return null;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-foreground/20 bg-background/95 backdrop-blur">

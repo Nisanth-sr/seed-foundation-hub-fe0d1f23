@@ -7,7 +7,7 @@ import { SITE, NAV_LINKS } from "@/lib/content";
 
 export function Footer() {
   const pathname = usePathname();
-  if (pathname.startsWith("/career") || pathname.startsWith("/internal") || pathname.startsWith("/auth")) {
+  if (pathname.startsWith("/career") || pathname.startsWith("/auth")) {
     return null;
   }
 
