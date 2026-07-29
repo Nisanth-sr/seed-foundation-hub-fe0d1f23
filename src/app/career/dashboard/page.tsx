@@ -168,9 +168,7 @@ export default function DashboardPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {!seedReport ? (
-                <p className="text-sm text-muted-foreground">{t("dash.seedReport.locked")}</p>
-              ) : (
+              {seedReport ? (
                 <>
                   <Button
                     className="w-full"
@@ -181,7 +179,7 @@ export default function DashboardPage() {
                   </Button>
                   {reportOpen && <SeedReportBody analysis={seedReport} t={t} />}
                 </>
-              )}
+              ) : null}
             </CardContent>
           </Card>
         </div>
