@@ -4,7 +4,10 @@ import {
   matchCareers,
   scoreBigFive,
   scoreRiasec,
+  type AgeRange,
   type BigFiveScores,
+  type CurrentStatus,
+  type EducationLevel,
   type RiasecScores,
 } from "@seed/career-core";
 import { supabaseAdmin } from "./supabase/admin";
@@ -36,12 +39,34 @@ export type AssessmentBlock = {
   updatedAt: string | null;
 };
 
+export type ProfilePatch = {
+  displayName?: string;
+  locale?: string;
+  email?: string;
+  phone?: string | null;
+  ageRange?: AgeRange | null;
+  city?: string | null;
+  state?: string | null;
+  educationLevel?: EducationLevel | null;
+  currentStatus?: CurrentStatus | null;
+  schoolOrCollege?: string | null;
+  languagesSpoken?: string[];
+};
+
 export type UserDetail = {
   id: string;
   email: string;
   displayName: string;
   locale: string;
   avatarUrl: string | null;
+  phone: string | null;
+  ageRange: AgeRange | null;
+  city: string | null;
+  state: string | null;
+  educationLevel: EducationLevel | null;
+  currentStatus: CurrentStatus | null;
+  schoolOrCollege: string | null;
+  languagesSpoken: string[];
   createdAt: string;
   lastSignInAt: string | null;
   bigFive: AssessmentBlock;
@@ -150,6 +175,14 @@ export async function getUserDetail(userId: string): Promise<UserDetail | null> 
     displayName: profile?.display_name || user.email || "Unknown",
     locale: profile?.locale ?? "en",
     avatarUrl: profile?.avatar_url ?? null,
+    phone: profile?.phone ?? null,
+    ageRange: (profile?.age_range as AgeRange | null) ?? null,
+    city: profile?.city ?? null,
+    state: profile?.state ?? null,
+    educationLevel: (profile?.education_level as EducationLevel | null) ?? null,
+    currentStatus: (profile?.current_status as CurrentStatus | null) ?? null,
+    schoolOrCollege: profile?.school_or_college ?? null,
+    languagesSpoken: profile?.languages_spoken ?? [],
     createdAt: profile?.created_at ?? user.created_at,
     lastSignInAt: user.last_sign_in_at ?? null,
     bigFive: {
@@ -186,16 +219,66 @@ export async function getUserDetail(userId: string): Promise<UserDetail | null> 
   };
 }
 
-export async function updateProfile(
-  userId: string,
-  patch: { displayName?: string; locale?: string; email?: string },
-) {
-  if (patch.displayName !== undefined || patch.locale !== undefined) {
-    const updates: { display_name?: string; locale?: string; updated_at: string } = {
-      updated_at: new Date().toISOString(),
-    };
-    if (patch.displayName !== undefined) updates.display_name = patch.displayName;
-    if (patch.locale !== undefined) updates.locale = patch.locale;
+export async function updateProfile(userId: string, patch: ProfilePatch) {
+  type ProfileUpdate = {
+    display_name?: string | null;
+    locale?: string;
+    phone?: string | null;
+    age_range?: string | null;
+    city?: string | null;
+    state?: string | null;
+    education_level?: string | null;
+    current_status?: string | null;
+    school_or_college?: string | null;
+    languages_spoken?: string[];
+    updated_at: string;
+  };
+
+  const updates: ProfileUpdate = { updated_at: new Date().toISOString() };
+  let hasProfileUpdate = false;
+
+  if (patch.displayName !== undefined) {
+    updates.display_name = patch.displayName;
+    hasProfileUpdate = true;
+  }
+  if (patch.locale !== undefined) {
+    updates.locale = patch.locale;
+    hasProfileUpdate = true;
+  }
+  if (patch.phone !== undefined) {
+    updates.phone = patch.phone || null;
+    hasProfileUpdate = true;
+  }
+  if (patch.ageRange !== undefined) {
+    updates.age_range = patch.ageRange;
+    hasProfileUpdate = true;
+  }
+  if (patch.city !== undefined) {
+    updates.city = patch.city || null;
+    hasProfileUpdate = true;
+  }
+  if (patch.state !== undefined) {
+    updates.state = patch.state || null;
+    hasProfileUpdate = true;
+  }
+  if (patch.educationLevel !== undefined) {
+    updates.education_level = patch.educationLevel;
+    hasProfileUpdate = true;
+  }
+  if (patch.currentStatus !== undefined) {
+    updates.current_status = patch.currentStatus;
+    hasProfileUpdate = true;
+  }
+  if (patch.schoolOrCollege !== undefined) {
+    updates.school_or_college = patch.schoolOrCollege || null;
+    hasProfileUpdate = true;
+  }
+  if (patch.languagesSpoken !== undefined) {
+    updates.languages_spoken = patch.languagesSpoken;
+    hasProfileUpdate = true;
+  }
+
+  if (hasProfileUpdate) {
     const { error } = await supabaseAdmin.from("profiles").update(updates).eq("id", userId);
     if (error) throw new Error(error.message);
   }

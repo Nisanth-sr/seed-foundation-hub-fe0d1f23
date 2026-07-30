@@ -1,10 +1,16 @@
 import {
   BIG_FIVE_QUESTIONS,
   RIASEC_QUESTIONS,
+  AGE_RANGE_LABELS,
+  CURRENT_STATUS_LABELS,
+  EDUCATION_LEVEL_LABELS,
   hollandCode,
   level,
   matchCareers,
+  type AgeRange,
   type BigFiveScores,
+  type CurrentStatus,
+  type EducationLevel,
   type RiasecScores,
 } from "@seed/career-core";
 
@@ -12,6 +18,14 @@ export type AnalysisPayload = {
   displayName: string;
   email: string;
   locale: string;
+  phone?: string | null;
+  ageRange?: AgeRange | null;
+  city?: string | null;
+  state?: string | null;
+  educationLevel?: EducationLevel | null;
+  currentStatus?: CurrentStatus | null;
+  schoolOrCollege?: string | null;
+  languagesSpoken?: string[];
   bigFive: BigFiveScores;
   riasec: RiasecScores;
   bigFiveAnswers: Record<string, number>;
@@ -97,6 +111,13 @@ STUDENT
 - Name: ${payload.displayName}
 - Email: ${payload.email}
 - Locale: ${payload.locale}
+- Phone: ${payload.phone || "—"}
+- Age range: ${payload.ageRange ? AGE_RANGE_LABELS[payload.ageRange] : "—"}
+- Location: ${[payload.city, payload.state].filter(Boolean).join(", ") || "—"}
+- Education: ${payload.educationLevel ? EDUCATION_LEVEL_LABELS[payload.educationLevel] : "—"}
+- Status: ${payload.currentStatus ? CURRENT_STATUS_LABELS[payload.currentStatus] : "—"}
+- School / college: ${payload.schoolOrCollege || "—"}
+- Languages: ${payload.languagesSpoken?.length ? payload.languagesSpoken.join(", ") : "—"}
 
 BIG FIVE PERSONALITY (0-100, higher = stronger trait)
 ${bfLines.join("\n")}

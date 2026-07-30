@@ -55,30 +55,54 @@ export type Database = {
       }
       profiles: {
         Row: {
+          age_range: string | null
           avatar_url: string | null
+          city: string | null
           created_at: string
+          current_status: string | null
           display_name: string | null
+          education_level: string | null
           id: string
           is_admin: boolean
+          languages_spoken: string[]
           locale: string
+          phone: string | null
+          school_or_college: string | null
+          state: string | null
           updated_at: string
         }
         Insert: {
+          age_range?: string | null
           avatar_url?: string | null
+          city?: string | null
           created_at?: string
+          current_status?: string | null
           display_name?: string | null
+          education_level?: string | null
           id: string
           is_admin?: boolean
+          languages_spoken?: string[]
           locale?: string
+          phone?: string | null
+          school_or_college?: string | null
+          state?: string | null
           updated_at?: string
         }
         Update: {
+          age_range?: string | null
           avatar_url?: string | null
+          city?: string | null
           created_at?: string
+          current_status?: string | null
           display_name?: string | null
+          education_level?: string | null
           id?: string
           is_admin?: boolean
+          languages_spoken?: string[]
           locale?: string
+          phone?: string | null
+          school_or_college?: string | null
+          state?: string | null
           updated_at?: string
         }
         Relationships: []

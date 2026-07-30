@@ -6,7 +6,7 @@ Next.js admin app for Career Intelligence assessments. Deployed separately at **
 
 - Sign in with Supabase email/password (requires `profiles.is_admin = true`)
 - List users with assessment + AI report status
-- View/edit profile (name, email, locale)
+- View/edit profile (name, email, locale, phone, age range, location, education, status, school, languages)
 - View/edit Big Five & RIASEC answers; scores recalculate on save
 - Manage saved careers; see algorithmic matches
 - Generate/regenerate structured AI reports via OpenRouter (cached in `assessment_analyses`)
@@ -74,3 +74,9 @@ Do **not** edit `is_admin` from the UI — promote/demote only via SQL or Table 
 3. The user sees a **Seed Report** card on `/career/dashboard` only while status is `approved`.
 4. **Unpublish** returns the report to draft and hides it from the user.
 5. Regenerating AI resets the report to draft (must approve again).
+
+## Profile fields (v1)
+
+Apply migration `supabase/migrations/20260730120000_profiles_v1_personal_fields.sql` before using the new profile form.
+
+Users edit at `/career/profile`. Admins edit the same fields on the user **Profile** tab. AI Generate includes these fields in the counselor prompt when present.

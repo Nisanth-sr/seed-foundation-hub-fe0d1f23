@@ -12,6 +12,7 @@ import {
   unpublishAnalysis,
   updateAssessmentAnswers,
   updateProfile,
+  type ProfilePatch,
 } from "@/lib/users";
 import { generateAnalysis } from "@/lib/openrouter";
 import { hollandCode } from "@seed/career-core";
@@ -30,10 +31,7 @@ export async function actionGetUser(userId: string) {
   return detail;
 }
 
-export async function actionUpdateProfile(
-  userId: string,
-  patch: { displayName?: string; locale?: string; email?: string },
-) {
+export async function actionUpdateProfile(userId: string, patch: ProfilePatch) {
   await requireAdmin();
   await updateProfile(userId, patch);
   revalidatePath(`/users/${userId}`);
@@ -73,6 +71,14 @@ export async function actionGenerateAnalysis(userId: string) {
       displayName: detail.displayName,
       email: detail.email,
       locale: detail.locale,
+      phone: detail.phone,
+      ageRange: detail.ageRange,
+      city: detail.city,
+      state: detail.state,
+      educationLevel: detail.educationLevel,
+      currentStatus: detail.currentStatus,
+      schoolOrCollege: detail.schoolOrCollege,
+      languagesSpoken: detail.languagesSpoken,
       bigFive: detail.bigFive.scores as BigFiveScores,
       riasec: detail.riasec.scores as RiasecScores,
       bigFiveAnswers: detail.bigFive.answers,

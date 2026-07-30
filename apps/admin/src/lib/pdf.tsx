@@ -80,6 +80,36 @@ function AssessmentPdfDoc({ detail }: { detail: UserDetail }) {
           <Text style={styles.value}>{detail.locale}</Text>
         </View>
         <View style={styles.row}>
+          <Text style={styles.label}>Phone</Text>
+          <Text style={styles.value}>{detail.phone ?? "—"}</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>Age range</Text>
+          <Text style={styles.value}>{detail.ageRange ?? "—"}</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>Location</Text>
+          <Text style={styles.value}>{[detail.city, detail.state].filter(Boolean).join(", ") || "—"}</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>Education</Text>
+          <Text style={styles.value}>{detail.educationLevel ?? "—"}</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>Status</Text>
+          <Text style={styles.value}>{detail.currentStatus ?? "—"}</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>School / college</Text>
+          <Text style={styles.value}>{detail.schoolOrCollege ?? "—"}</Text>
+        </View>
+        <View style={styles.row}>
+          <Text style={styles.label}>Languages</Text>
+          <Text style={styles.value}>
+            {detail.languagesSpoken.length ? detail.languagesSpoken.join(", ") : "—"}
+          </Text>
+        </View>
+        <View style={styles.row}>
           <Text style={styles.label}>Holland Code</Text>
           <Text style={styles.value}>{detail.hollandCode ?? "—"}</Text>
         </View>

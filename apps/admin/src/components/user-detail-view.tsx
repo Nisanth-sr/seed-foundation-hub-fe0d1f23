@@ -7,8 +7,18 @@ import {
   BIG_FIVE_QUESTIONS,
   RIASEC_QUESTIONS,
   CAREERS,
+  AGE_RANGES,
+  AGE_RANGE_LABELS,
+  CURRENT_STATUSES,
+  CURRENT_STATUS_LABELS,
+  EDUCATION_LEVELS,
+  EDUCATION_LEVEL_LABELS,
   level,
+  parseLanguagesInput,
+  type AgeRange,
   type BigFiveTrait,
+  type CurrentStatus,
+  type EducationLevel,
   type RiasecType,
 } from "@seed/career-core";
 import type { UserDetail } from "@/lib/users";
@@ -29,6 +39,9 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
+
+const selectClassName =
+  "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring";
 
 const TRAIT_LABELS: Record<BigFiveTrait, string> = {
   O: "Openness",
@@ -54,6 +67,14 @@ export function UserDetailView({ detail: initial }: { detail: UserDetail }) {
   const [displayName, setDisplayName] = useState(detail.displayName);
   const [locale, setLocale] = useState(detail.locale);
   const [email, setEmail] = useState(detail.email);
+  const [phone, setPhone] = useState(detail.phone ?? "");
+  const [ageRange, setAgeRange] = useState<AgeRange | "">(detail.ageRange ?? "");
+  const [city, setCity] = useState(detail.city ?? "");
+  const [state, setState] = useState(detail.state ?? "");
+  const [educationLevel, setEducationLevel] = useState<EducationLevel | "">(detail.educationLevel ?? "");
+  const [currentStatus, setCurrentStatus] = useState<CurrentStatus | "">(detail.currentStatus ?? "");
+  const [schoolOrCollege, setSchoolOrCollege] = useState(detail.schoolOrCollege ?? "");
+  const [languagesRaw, setLanguagesRaw] = useState(detail.languagesSpoken.join(", "));
   const [bfAnswers, setBfAnswers] = useState({ ...detail.bigFive.answers });
   const [riAnswers, setRiAnswers] = useState({ ...detail.riasec.answers });
   const [savedKeys, setSavedKeys] = useState(detail.savedCareers.map((s) => s.careerKey));
@@ -86,8 +107,34 @@ export function UserDetailView({ detail: initial }: { detail: UserDetail }) {
   function saveProfile() {
     startTransition(async () => {
       try {
-        await actionUpdateProfile(detail.id, { displayName, locale, email });
-        setDetail((d) => ({ ...d, displayName, locale, email }));
+        const languagesSpoken = parseLanguagesInput(languagesRaw);
+        await actionUpdateProfile(detail.id, {
+          displayName,
+          locale,
+          email,
+          phone: phone.trim() || null,
+          ageRange: ageRange || null,
+          city: city.trim() || null,
+          state: state.trim() || null,
+          educationLevel: educationLevel || null,
+          currentStatus: currentStatus || null,
+          schoolOrCollege: schoolOrCollege.trim() || null,
+          languagesSpoken,
+        });
+        setDetail((d) => ({
+          ...d,
+          displayName,
+          locale,
+          email,
+          phone: phone.trim() || null,
+          ageRange: ageRange || null,
+          city: city.trim() || null,
+          state: state.trim() || null,
+          educationLevel: educationLevel || null,
+          currentStatus: currentStatus || null,
+          schoolOrCollege: schoolOrCollege.trim() || null,
+          languagesSpoken,
+        }));
         toast.success("Profile updated");
       } catch (e) {
         toast.error(e instanceof Error ? e.message : "Update failed");
@@ -257,28 +304,100 @@ export function UserDetailView({ detail: initial }: { detail: UserDetail }) {
             <CardHeader>
               <CardTitle>Edit profile</CardTitle>
             </CardHeader>
-            <CardContent className="grid max-w-xl gap-4">
-              <div className="space-y-2">
+            <CardContent className="grid max-w-2xl gap-4 sm:grid-cols-2">
+              <div className="space-y-2 sm:col-span-2">
                 <Label>Display name</Label>
                 <Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 sm:col-span-2">
                 <Label>Email</Label>
                 <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label>Phone</Label>
+                <Input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91 …" />
               </div>
               <div className="space-y-2">
                 <Label>Locale</Label>
                 <Input value={locale} onChange={(e) => setLocale(e.target.value)} placeholder="en | ta" />
               </div>
-              <p className="text-xs text-muted-foreground">
+              <div className="space-y-2">
+                <Label>Age range</Label>
+                <select
+                  className={selectClassName}
+                  value={ageRange}
+                  onChange={(e) => setAgeRange(e.target.value as AgeRange | "")}
+                >
+                  <option value="">—</option>
+                  {AGE_RANGES.map((v) => (
+                    <option key={v} value={v}>
+                      {AGE_RANGE_LABELS[v]}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label>Current status</Label>
+                <select
+                  className={selectClassName}
+                  value={currentStatus}
+                  onChange={(e) => setCurrentStatus(e.target.value as CurrentStatus | "")}
+                >
+                  <option value="">—</option>
+                  {CURRENT_STATUSES.map((v) => (
+                    <option key={v} value={v}>
+                      {CURRENT_STATUS_LABELS[v]}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label>City</Label>
+                <Input value={city} onChange={(e) => setCity(e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label>State</Label>
+                <Input value={state} onChange={(e) => setState(e.target.value)} />
+              </div>
+              <div className="space-y-2">
+                <Label>Education level</Label>
+                <select
+                  className={selectClassName}
+                  value={educationLevel}
+                  onChange={(e) => setEducationLevel(e.target.value as EducationLevel | "")}
+                >
+                  <option value="">—</option>
+                  {EDUCATION_LEVELS.map((v) => (
+                    <option key={v} value={v}>
+                      {EDUCATION_LEVEL_LABELS[v]}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label>School / college</Label>
+                <Input value={schoolOrCollege} onChange={(e) => setSchoolOrCollege(e.target.value)} />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label>Languages spoken</Label>
+                <Input
+                  value={languagesRaw}
+                  onChange={(e) => setLanguagesRaw(e.target.value)}
+                  placeholder="Tamil, English, Hindi"
+                />
+                <p className="text-xs text-muted-foreground">Comma-separated</p>
+              </div>
+              <p className="text-xs text-muted-foreground sm:col-span-2">
                 Joined {new Date(detail.createdAt).toLocaleString()}
                 {detail.lastSignInAt
                   ? ` · Last sign-in ${new Date(detail.lastSignInAt).toLocaleString()}`
                   : ""}
               </p>
-              <Button onClick={saveProfile} disabled={pending}>
-                Save profile
-              </Button>
+              <div className="sm:col-span-2">
+                <Button onClick={saveProfile} disabled={pending}>
+                  Save profile
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

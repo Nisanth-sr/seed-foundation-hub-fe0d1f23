@@ -50,6 +50,9 @@ export function CareerHeader() {
               <Button variant="ghost" size="sm" asChild>
                 <Link href="/career/dashboard">{t("nav.dashboard")}</Link>
               </Button>
+              <Button variant="ghost" size="sm" asChild>
+                <Link href="/career/profile">{t("nav.profile")}</Link>
+              </Button>
               <Button variant="ghost" size="icon" onClick={async () => { await signOut(); router.push("/career"); }} aria-label={t("nav.signout")}>
                 <LogOut className="h-4 w-4" />
               </Button>

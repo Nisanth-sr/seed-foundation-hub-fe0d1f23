@@ -102,6 +102,9 @@ export default function DashboardPage() {
       <div className="mb-8 flex flex-col gap-1">
         <p className="text-sm text-muted-foreground">{t("dash.welcome")}</p>
         <h1 className="text-3xl font-bold tracking-tight">{displayName}</h1>
+        <Link href="/career/profile" className="mt-1 w-fit text-sm text-primary hover:underline">
+          {t("nav.profile")}
+        </Link>
       </div>
 
       {fetching ? (
