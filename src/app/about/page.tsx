@@ -1,8 +1,6 @@
-import Link from "next/link";
 import { Hero } from "@/components/site/Hero";
 import { Section } from "@/components/site/Section";
 import { CtaStrip } from "@/components/site/CtaStrip";
-import { Button } from "@/components/ui/button";
 import { ABOUT, APPROACH_STEPS } from "@/lib/content";
 import { createMetadata } from "@/lib/seo";
 
@@ -51,26 +49,6 @@ export default function AboutPage() {
             </li>
           ))}
         </ol>
-      </Section>
-
-      <Section title="Trustees & Leadership" subtitle="Leadership profiles will be published here.">
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="border border-foreground p-6">
-              <div className="mb-4 aspect-square bg-foreground" />
-              <h3 className="text-lg font-semibold">Trustee name</h3>
-              <p className="text-sm text-primary">Role — coming soon</p>
-              <p className="mt-3 text-sm leading-relaxed">
-                Biography and photo will be added when provided.
-              </p>
-            </div>
-          ))}
-        </div>
-        <div className="mt-12">
-          <Button asChild variant="primary" size="lg">
-            <Link href="/our-stories">Explore our stories</Link>
-          </Button>
-        </div>
       </Section>
 
       <CtaStrip />
