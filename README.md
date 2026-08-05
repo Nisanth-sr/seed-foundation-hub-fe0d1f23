@@ -37,6 +37,23 @@ Server-only:
 | Variable | Purpose |
 |----------|---------|
 | `SUPABASE_SERVICE_ROLE_KEY` | Service role (bypasses RLS; use only on the server) |
+| `GOOGLE_SERVICE_ACCOUNT_EMAIL` | Service account email for Sheets append |
+| `GOOGLE_PRIVATE_KEY` | Service account private key (escape newlines as `\n`) |
+| `GOOGLE_SHEETS_SPREADSHEET_ID` | Target spreadsheet ID from the sheet URL |
+| `GOOGLE_SHEETS_TAB_NAME` | Worksheet name (default `Feedback`) |
+
+### Feedback form → Google Sheets
+
+Public page: `/feedback` (no login). Submissions POST to `/api/feedback` and append a row.
+
+1. In Google Cloud Console, create a project (or use an existing one) and enable **Google Sheets API**.
+2. Create a **service account**, download the JSON key, and copy `client_email` + `private_key` into `.env.local` / Vercel env vars.
+3. Create a Google Sheet with a tab named `Feedback` (or match `GOOGLE_SHEETS_TAB_NAME`) and this header row in `A1:F1`:
+
+   `Timestamp | Name | Email | Contact | Category | Feedback`
+
+4. Share the sheet with the service account email as **Editor**.
+5. Copy the spreadsheet ID from the URL (`https://docs.google.com/spreadsheets/d/<ID>/edit`) into `GOOGLE_SHEETS_SPREADSHEET_ID`.
 
 ## Scripts
 

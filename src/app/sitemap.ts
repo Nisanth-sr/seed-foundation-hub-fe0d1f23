@@ -3,7 +3,7 @@ import { PROGRAMS, SITE, STORIES } from "@/lib/content";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = SITE.url;
-  const staticRoutes = ["", "/about", "/our-stories", "/get-involved"].map((path) => ({
+  const staticRoutes = ["", "/about", "/our-stories", "/get-involved", "/feedback"].map((path) => ({
     url: `${base}${path || "/"}`,
     lastModified: new Date(),
   }));
