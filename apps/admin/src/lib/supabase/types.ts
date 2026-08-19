@@ -179,6 +179,7 @@ export type Database = {
           created_by: string | null
           event_date: string | null
           excerpt: string
+          featured_on_homepage: boolean
           focus_area: string
           id: string
           published_at: string | null
@@ -197,6 +198,7 @@ export type Database = {
           created_by?: string | null
           event_date?: string | null
           excerpt?: string
+          featured_on_homepage?: boolean
           focus_area: string
           id?: string
           published_at?: string | null
@@ -215,6 +217,7 @@ export type Database = {
           created_by?: string | null
           event_date?: string | null
           excerpt?: string
+          featured_on_homepage?: boolean
           focus_area?: string
           id?: string
           published_at?: string | null

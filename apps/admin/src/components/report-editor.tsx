@@ -23,6 +23,7 @@ import {
   actionDeleteReport,
   actionMoveMedia,
   actionSaveReport,
+  actionSetReportFeatured,
   actionSetReportStatus,
   actionUpdateMediaCaption,
 } from "@/app/actions/reports";
@@ -48,6 +49,7 @@ export function ReportEditor({ report }: { report: ProjectReport }) {
   const [eventDate, setEventDate] = useState(report.eventDate ?? "");
   const [venue, setVenue] = useState(report.venue ?? "");
   const [status, setStatus] = useState(report.status);
+  const [featured, setFeatured] = useState(report.featuredOnHomepage);
   const [coverUrl, setCoverUrl] = useState(report.coverImageUrl);
   const [media, setMedia] = useState(report.media);
   const [embedUrl, setEmbedUrl] = useState("");
@@ -57,6 +59,7 @@ export function ReportEditor({ report }: { report: ProjectReport }) {
 
   useEffect(() => {
     setStatus(report.status);
+    setFeatured(report.featuredOnHomepage);
     setCoverUrl(report.coverImageUrl);
     setMedia(report.media);
   }, [report]);
@@ -104,7 +107,34 @@ export function ReportEditor({ report }: { report: ProjectReport }) {
       if (!result.ok) toast.error(result.error);
       else {
         setStatus(next);
-        toast.success(next === "published" ? "Visible on website" : "Hidden from website");
+        if (next === "draft") setFeatured(false);
+        toast.success(next === "published" ? "Visible on Our Stories" : "Hidden from website");
+        router.refresh();
+      }
+    });
+  }
+
+  function setHomepage(next: boolean) {
+    startTransition(async () => {
+      const saved = await actionSaveReport(report.id, {
+        title,
+        slug,
+        excerpt,
+        body,
+        focusArea,
+        eventDate: eventDate || null,
+        venue,
+      });
+      if (!saved.ok) {
+        toast.error(saved.error);
+        return;
+      }
+      const result = await actionSetReportFeatured(report.id, next);
+      if (!result.ok) toast.error(result.error);
+      else {
+        setFeatured(next);
+        if (next) setStatus("published");
+        toast.success(next ? "Promoted to homepage" : "Removed from homepage");
         router.refresh();
       }
     });
@@ -178,7 +208,8 @@ export function ReportEditor({ report }: { report: ProjectReport }) {
           <p className="text-sm text-muted-foreground">/our-stories/{slug || "…"}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          {status === "published" ? <Badge variant="success">Visible on website</Badge> : <Badge variant="muted">Hidden</Badge>}
+          {status === "published" ? <Badge variant="success">Visible on Our Stories</Badge> : <Badge variant="muted">Hidden</Badge>}
+          {featured && status === "published" ? <Badge variant="success">Homepage</Badge> : null}
           <Button type="button" variant="outline" disabled={pending} onClick={save}>
             Save
           </Button>
@@ -189,6 +220,14 @@ export function ReportEditor({ report }: { report: ProjectReport }) {
             onClick={() => setVisible(status === "published" ? "draft" : "published")}
           >
             {status === "published" ? "Hide from website" : "Show on website"}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            disabled={pending}
+            onClick={() => setHomepage(!featured)}
+          >
+            {featured ? "Remove from homepage" : "Promote to homepage"}
           </Button>
         </div>
       </div>

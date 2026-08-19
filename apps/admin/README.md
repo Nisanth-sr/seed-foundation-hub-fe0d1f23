@@ -89,5 +89,7 @@ Users edit at `/career/profile`. Admins edit the same fields on the user **Profi
 1. Apply `supabase/migrations/20260819120000_project_reports.sql` and `20260819120001_project_reports_seed.sql`.
 2. Open **Reports** in the admin nav.
 3. Create or edit a report, add a cover image, gallery images/videos, or a YouTube/Vimeo URL.
-4. **Show on website** publishes to `/our-stories`. **Hide** keeps the report in admin only.
-5. Set `PUBLIC_SITE_URL` and matching `REVALIDATE_SECRET` so the public site updates immediately after publish.
+4. **Show on site** publishes to `/our-stories`. **Hide** keeps the report in admin only.
+5. **Promote to homepage** adds it to the homepage Stories of Impact section. Removing it from the homepage does not hide it from Our Stories.
+6. Apply `supabase/migrations/20260820120000_project_reports_featured.sql` for the homepage toggle.
+7. Set `PUBLIC_SITE_URL` and matching `REVALIDATE_SECRET` so the public site updates immediately after publish.

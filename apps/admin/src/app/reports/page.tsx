@@ -15,7 +15,7 @@ export default async function ReportsPage() {
         <div>
           <h1 className="text-2xl font-semibold">Project reports</h1>
           <p className="text-sm text-muted-foreground">
-            Upload reports with images and videos. Only reports marked visible appear on the website.
+            Upload reports with images and videos. Visible reports appear on Our Stories. Promote a report to also show it on the homepage.
           </p>
         </div>
         <form action={actionCreateReport}>

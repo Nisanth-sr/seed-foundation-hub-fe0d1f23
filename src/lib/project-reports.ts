@@ -1,10 +1,10 @@
 import "server-only";
-import { unstable_cache } from "next/cache";
 import { STORIES, type FocusArea } from "@/lib/content";
 import { createPublicSupabase } from "@/lib/supabase/public";
 import { toVideoEmbedSrc } from "@/lib/video-embed";
 
 const BUCKET = "project-reports";
+const LIST_LIMIT = 200;
 
 export type ReportMedia = {
   id: string;
@@ -26,6 +26,7 @@ export type PublicReport = {
   eventDate: string | null;
   venue: string | null;
   coverImageUrl?: string;
+  featuredOnHomepage: boolean;
   publishedAt: string | null;
   updatedAt: string;
   media: ReportMedia[];
@@ -54,7 +55,7 @@ function isMissingRelation(error: { code?: string; message?: string } | null) {
 }
 
 function fromLegacyStories(): PublicReport[] {
-  return STORIES.map((story) => ({
+  return STORIES.map((story, index) => ({
     id: `legacy-${story.slug}`,
     slug: story.slug,
     title: story.title,
@@ -65,6 +66,7 @@ function fromLegacyStories(): PublicReport[] {
     eventDate: null,
     venue: null,
     coverImageUrl: story.image,
+    featuredOnHomepage: index < 3,
     publishedAt: null,
     updatedAt: "",
     media: [],
@@ -82,34 +84,12 @@ type ReportRow = {
   event_date: string | null;
   venue: string | null;
   cover_image_path: string | null;
+  featured_on_homepage?: boolean | null;
   published_at: string | null;
   updated_at: string;
-  project_report_media?: {
-    id: string;
-    kind: string;
-    storage_path: string | null;
-    embed_url: string | null;
-    alt_text: string | null;
-    caption: string | null;
-    sort_order: number;
-  }[];
 };
 
-function mapReport(row: ReportRow): PublicReport {
-  const media = [...(row.project_report_media ?? [])]
-    .sort((a, b) => a.sort_order - b.sort_order)
-    .map((item) => {
-      const kind = item.kind as ReportMedia["kind"];
-      return {
-        id: item.id,
-        kind,
-        url: kind === "video_embed" ? item.embed_url : resolvePublicMediaUrl(item.storage_path) ?? null,
-        embedSrc: item.embed_url ? toVideoEmbedSrc(item.embed_url) : null,
-        caption: item.caption,
-        altText: item.alt_text,
-      };
-    });
-
+function mapReport(row: ReportRow, media: ReportMedia[] = []): PublicReport {
   return {
     id: row.id,
     slug: row.slug,
@@ -121,47 +101,133 @@ function mapReport(row: ReportRow): PublicReport {
     eventDate: row.event_date,
     venue: row.venue,
     coverImageUrl: resolvePublicMediaUrl(row.cover_image_path),
+    featuredOnHomepage: !!row.featured_on_homepage,
     publishedAt: row.published_at,
     updatedAt: row.updated_at,
     media,
   };
 }
 
-const SELECT =
-  "id, slug, title, excerpt, body, focus_area, category, event_date, venue, cover_image_path, published_at, updated_at, project_report_media (id, kind, storage_path, embed_url, alt_text, caption, sort_order)";
+const LIST_SELECT =
+  "id, slug, title, excerpt, body, focus_area, category, event_date, venue, cover_image_path, featured_on_homepage, published_at, updated_at";
+const LIST_SELECT_LEGACY =
+  "id, slug, title, excerpt, body, focus_area, category, event_date, venue, cover_image_path, published_at, updated_at";
 
-async function fetchPublishedReports(): Promise<PublicReport[]> {
+function isMissingFeaturedColumn(error: { message?: string } | null) {
+  return /featured_on_homepage/i.test(error?.message ?? "");
+}
+
+async function fetchPublishedRows(): Promise<ReportRow[] | null> {
   try {
     const supabase = createPublicSupabase();
-    const { data, error } = await supabase
-      .from("project_reports")
-      .select(SELECT)
-      .eq("status", "published")
-      .order("event_date", { ascending: false, nullsFirst: false })
-      .order("published_at", { ascending: false });
+    const query = () =>
+      supabase
+        .from("project_reports")
+        .select(LIST_SELECT)
+        .eq("status", "published")
+        .order("event_date", { ascending: false, nullsFirst: false })
+        .order("created_at", { ascending: false })
+        .limit(LIST_LIMIT);
 
-    if (error) {
-      if (isMissingRelation(error)) return fromLegacyStories();
-      console.error("[project-reports]", error.message);
-      return fromLegacyStories();
+    let { data, error } = await query();
+
+    if (error && isMissingFeaturedColumn(error)) {
+      const retry = await supabase
+        .from("project_reports")
+        .select(LIST_SELECT_LEGACY)
+        .eq("status", "published")
+        .order("event_date", { ascending: false, nullsFirst: false })
+        .order("created_at", { ascending: false })
+        .limit(LIST_LIMIT);
+      data = retry.data;
+      error = retry.error;
     }
 
-    return (data ?? []).map((row) => mapReport(row as ReportRow));
+    if (error) {
+      if (isMissingRelation(error)) return null;
+      console.error("[project-reports]", error.message);
+      return [];
+    }
+
+    return (data ?? []) as ReportRow[];
   } catch (err) {
     console.error("[project-reports]", err);
-    return fromLegacyStories();
+    return [];
   }
 }
 
-async function fetchPublishedReportBySlug(slug: string): Promise<PublicReport | null> {
+async function fetchMediaForReport(reportId: string): Promise<ReportMedia[]> {
+  try {
+    const supabase = createPublicSupabase();
+    const { data, error } = await supabase
+      .from("project_report_media")
+      .select("id, kind, storage_path, embed_url, alt_text, caption, sort_order")
+      .eq("report_id", reportId)
+      .order("sort_order", { ascending: true })
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      console.error("[project-report-media]", error.message);
+      return [];
+    }
+
+    return (data ?? []).map((item) => {
+      const kind = item.kind as ReportMedia["kind"];
+      return {
+        id: item.id,
+        kind,
+        url: kind === "video_embed" ? item.embed_url : resolvePublicMediaUrl(item.storage_path) ?? null,
+        embedSrc: item.embed_url ? toVideoEmbedSrc(item.embed_url) : null,
+        caption: item.caption,
+        altText: item.alt_text,
+      };
+    });
+  } catch (err) {
+    console.error("[project-report-media]", err);
+    return [];
+  }
+}
+
+export async function getPublishedReports(): Promise<PublicReport[]> {
+  const rows = await fetchPublishedRows();
+  if (rows === null) return fromLegacyStories();
+  return rows.map((row) => mapReport(row));
+}
+
+export async function getHomepageReports(): Promise<PublicReport[]> {
+  const reports = await getPublishedReports();
+  return reports.filter((report) => report.featuredOnHomepage);
+}
+
+export async function getPublishedReportBySlug(slug: string): Promise<PublicReport | null> {
   try {
     const supabase = createPublicSupabase();
     const { data, error } = await supabase
       .from("project_reports")
-      .select(SELECT)
+      .select(LIST_SELECT)
       .eq("status", "published")
       .eq("slug", slug)
       .maybeSingle();
+
+    if (error && isMissingFeaturedColumn(error)) {
+      const retry = await supabase
+        .from("project_reports")
+        .select(LIST_SELECT_LEGACY)
+        .eq("status", "published")
+        .eq("slug", slug)
+        .maybeSingle();
+      if (retry.error) {
+        if (isMissingRelation(retry.error)) {
+          return fromLegacyStories().find((story) => story.slug === slug) ?? null;
+        }
+        console.error("[project-reports]", retry.error.message);
+        return fromLegacyStories().find((story) => story.slug === slug) ?? null;
+      }
+      if (!retry.data) return null;
+      const row = retry.data as ReportRow;
+      const media = await fetchMediaForReport(row.id);
+      return mapReport(row, media);
+    }
 
     if (error) {
       if (isMissingRelation(error)) {
@@ -171,20 +237,12 @@ async function fetchPublishedReportBySlug(slug: string): Promise<PublicReport | 
       return fromLegacyStories().find((story) => story.slug === slug) ?? null;
     }
 
-    return data ? mapReport(data as ReportRow) : null;
+    if (!data) return null;
+    const row = data as ReportRow;
+    const media = await fetchMediaForReport(row.id);
+    return mapReport(row, media);
   } catch (err) {
     console.error("[project-reports]", err);
     return fromLegacyStories().find((story) => story.slug === slug) ?? null;
   }
 }
-
-export const getPublishedReports = unstable_cache(fetchPublishedReports, ["project-reports-list"], {
-  tags: ["project-reports"],
-  revalidate: 60,
-});
-
-export const getPublishedReportBySlug = unstable_cache(
-  fetchPublishedReportBySlug,
-  ["project-reports-by-slug"],
-  { tags: ["project-reports"], revalidate: 60 },
-);

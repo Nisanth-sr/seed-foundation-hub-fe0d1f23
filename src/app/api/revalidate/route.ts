@@ -1,4 +1,4 @@
-import { revalidateTag } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 
 export async function POST(request: Request) {
   const secret = process.env.REVALIDATE_SECRET;
@@ -12,5 +12,7 @@ export async function POST(request: Request) {
   }
 
   revalidateTag("project-reports");
+  revalidatePath("/");
+  revalidatePath("/our-stories");
   return Response.json({ revalidated: true, now: Date.now() });
 }

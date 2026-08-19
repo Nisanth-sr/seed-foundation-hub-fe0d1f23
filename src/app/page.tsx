@@ -20,7 +20,7 @@ import {
   APPROACH_STEPS,
   IMPACT,
 } from "@/lib/content";
-import { getPublishedReports } from "@/lib/project-reports";
+import { getHomepageReports } from "@/lib/project-reports";
 import { createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({
@@ -29,7 +29,7 @@ export const metadata = createMetadata({
   path: "/",
 });
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 const pillarIcons = {
   health: HeartPulse,
@@ -39,7 +39,7 @@ const pillarIcons = {
 };
 
 export default async function HomePage() {
-  const stories = (await getPublishedReports()).slice(0, 3);
+  const stories = await getHomepageReports();
   return (
     <>
       <HomeHero />
@@ -81,7 +81,7 @@ export default async function HomePage() {
         <div className="grid gap-8 md:grid-cols-3">
           {stories.map((s) => (
             <ArticleCard
-              key={s.slug}
+              key={s.id}
               title={s.title}
               excerpt={s.excerpt}
               category={s.category}

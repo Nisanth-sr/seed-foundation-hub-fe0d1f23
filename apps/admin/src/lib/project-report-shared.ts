@@ -35,6 +35,7 @@ export type ProjectReport = {
   coverImagePath: string | null;
   coverImageUrl: string | null;
   status: ReportStatus;
+  featuredOnHomepage: boolean;
   publishedAt: string | null;
   sortOrder: number;
   createdAt: string;
@@ -50,6 +51,7 @@ export type ReportListRow = {
   category: string;
   eventDate: string | null;
   status: ReportStatus;
+  featuredOnHomepage: boolean;
   coverImageUrl: string | null;
   updatedAt: string;
 };

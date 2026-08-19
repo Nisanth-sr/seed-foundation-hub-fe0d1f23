@@ -12,6 +12,7 @@ import {
   deleteReport,
   moveMedia,
   setCoverImage,
+  setReportFeatured,
   setReportStatus,
   updateMediaCaption,
   updateReport,
@@ -47,6 +48,17 @@ export async function actionSetReportStatus(reportId: string, status: ReportStat
   try {
     await requireAdmin();
     await setReportStatus(reportId, status);
+    await refresh(reportId);
+    return { ok: true as const };
+  } catch (err) {
+    return { ok: false as const, error: err instanceof Error ? err.message : "Update failed" };
+  }
+}
+
+export async function actionSetReportFeatured(reportId: string, featured: boolean) {
+  try {
+    await requireAdmin();
+    await setReportFeatured(reportId, featured);
     await refresh(reportId);
     return { ok: true as const };
   } catch (err) {

@@ -82,11 +82,26 @@ function mapMedia(row: {
 }
 
 export async function listReports(): Promise<ReportListRow[]> {
-  const { data, error } = await supabaseAdmin
+  const selectWithFeatured =
+    "id, slug, title, focus_area, category, event_date, status, featured_on_homepage, cover_image_path, updated_at";
+  const selectLegacy =
+    "id, slug, title, focus_area, category, event_date, status, cover_image_path, updated_at";
+
+  let { data, error } = await supabaseAdmin
     .from("project_reports")
-    .select("id, slug, title, focus_area, category, event_date, status, cover_image_path, updated_at")
+    .select(selectWithFeatured)
     .order("event_date", { ascending: false, nullsFirst: false })
     .order("updated_at", { ascending: false });
+
+  if (error && /featured_on_homepage/i.test(error.message)) {
+    const retry = await supabaseAdmin
+      .from("project_reports")
+      .select(selectLegacy)
+      .order("event_date", { ascending: false, nullsFirst: false })
+      .order("updated_at", { ascending: false });
+    data = retry.data;
+    error = retry.error;
+  }
 
   if (error) throw new Error(error.message);
 
@@ -98,6 +113,7 @@ export async function listReports(): Promise<ReportListRow[]> {
     category: row.category,
     eventDate: row.event_date,
     status: row.status === "published" ? "published" : "draft",
+    featuredOnHomepage: !!row.featured_on_homepage,
     coverImageUrl: resolveAdminMediaUrl(row.cover_image_path),
     updatedAt: row.updated_at,
   }));
@@ -130,6 +146,7 @@ export async function getReport(id: string): Promise<ProjectReport | null> {
     coverImagePath: data.cover_image_path,
     coverImageUrl: resolveAdminMediaUrl(data.cover_image_path),
     status: data.status === "published" ? "published" : "draft",
+    featuredOnHomepage: !!data.featured_on_homepage,
     publishedAt: data.published_at,
     sortOrder: data.sort_order,
     createdAt: data.created_at,
@@ -200,6 +217,32 @@ export async function setReportStatus(id: string, status: ReportStatus) {
       status,
       published_at:
         status === "published" ? (current.published_at ?? new Date().toISOString()) : current.published_at,
+      ...(status === "draft" ? { featured_on_homepage: false } : {}),
+    })
+    .eq("id", id);
+
+  if (error) throw new Error(error.message);
+}
+
+export async function setReportFeatured(id: string, featured: boolean) {
+  const { data: current, error: readError } = await supabaseAdmin
+    .from("project_reports")
+    .select("status, published_at")
+    .eq("id", id)
+    .maybeSingle();
+  if (readError) throw new Error(readError.message);
+  if (!current) throw new Error("Report not found");
+
+  const { error } = await supabaseAdmin
+    .from("project_reports")
+    .update({
+      featured_on_homepage: featured,
+      ...(featured
+        ? {
+            status: "published" as const,
+            published_at: current.published_at ?? new Date().toISOString(),
+          }
+        : {}),
     })
     .eq("id", id);
 

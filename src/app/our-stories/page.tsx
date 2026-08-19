@@ -13,7 +13,7 @@ export const metadata = createMetadata({
   path: "/our-stories",
 });
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export default async function OurStoriesPage({
   searchParams,
@@ -51,7 +51,7 @@ export default async function OurStoriesPage({
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
           {filteredStories.map((s) => (
             <ArticleCard
-              key={s.slug}
+              key={s.id}
               title={s.title}
               excerpt={s.excerpt}
               category={s.category}

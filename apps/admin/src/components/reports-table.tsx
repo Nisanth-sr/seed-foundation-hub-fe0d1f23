@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
 import type { ReportListRow } from "@/lib/project-report-shared";
-import { actionSetReportStatus } from "@/app/actions/reports";
+import { actionSetReportFeatured, actionSetReportStatus } from "@/app/actions/reports";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -13,12 +13,23 @@ export function ReportsTable({ reports }: { reports: ReportListRow[] }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
 
-  function toggle(id: string, next: "draft" | "published") {
+  function toggleVisible(id: string, next: "draft" | "published") {
     startTransition(async () => {
       const result = await actionSetReportStatus(id, next);
       if (!result.ok) toast.error(result.error);
       else {
-        toast.success(next === "published" ? "Visible on website" : "Hidden from website");
+        toast.success(next === "published" ? "Visible on Our Stories" : "Hidden from website");
+        router.refresh();
+      }
+    });
+  }
+
+  function toggleHomepage(id: string, featured: boolean) {
+    startTransition(async () => {
+      const result = await actionSetReportFeatured(id, featured);
+      if (!result.ok) toast.error(result.error);
+      else {
+        toast.success(featured ? "Promoted to homepage" : "Removed from homepage");
         router.refresh();
       }
     });
@@ -26,14 +37,14 @@ export function ReportsTable({ reports }: { reports: ReportListRow[] }) {
 
   return (
     <div className="overflow-x-auto rounded border border-foreground">
-      <table className="w-full min-w-[720px] text-left text-sm">
+      <table className="w-full min-w-[880px] text-left text-sm">
         <thead className="border-b border-foreground bg-muted">
           <tr>
             <th className="px-3 py-2 font-semibold">Report</th>
             <th className="px-3 py-2 font-semibold">Area</th>
             <th className="px-3 py-2 font-semibold">Date</th>
-            <th className="px-3 py-2 font-semibold">Website</th>
-            <th className="px-3 py-2 font-semibold">Updated</th>
+            <th className="px-3 py-2 font-semibold">Our Stories</th>
+            <th className="px-3 py-2 font-semibold">Homepage</th>
             <th className="px-3 py-2 font-semibold"> </th>
           </tr>
         </thead>
@@ -57,18 +68,32 @@ export function ReportsTable({ reports }: { reports: ReportListRow[] }) {
                   <Badge variant="muted">Hidden</Badge>
                 )}
               </td>
-              <td className="px-3 py-2 text-muted-foreground">
-                {new Date(report.updatedAt).toLocaleDateString()}
+              <td className="px-3 py-2">
+                {report.featuredOnHomepage && report.status === "published" ? (
+                  <Badge variant="success">Promoted</Badge>
+                ) : (
+                  <Badge variant="muted">Off</Badge>
+                )}
               </td>
               <td className="px-3 py-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={pending}
-                  onClick={() => toggle(report.id, report.status === "published" ? "draft" : "published")}
-                >
-                  {report.status === "published" ? "Hide" : "Show on site"}
-                </Button>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={pending}
+                    onClick={() => toggleVisible(report.id, report.status === "published" ? "draft" : "published")}
+                  >
+                    {report.status === "published" ? "Hide" : "Show on site"}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={pending}
+                    onClick={() => toggleHomepage(report.id, !report.featuredOnHomepage)}
+                  >
+                    {report.featuredOnHomepage ? "Remove from homepage" : "Promote to homepage"}
+                  </Button>
+                </div>
               </td>
             </tr>
           ))}

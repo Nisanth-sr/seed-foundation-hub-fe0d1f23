@@ -10,7 +10,7 @@ import { getProgram, PROGRAMS } from "@/lib/content";
 import { getPublishedReportBySlug, getPublishedReports } from "@/lib/project-reports";
 import { createMetadata } from "@/lib/seo";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 export const dynamicParams = true;
 
 export async function generateStaticParams() {
