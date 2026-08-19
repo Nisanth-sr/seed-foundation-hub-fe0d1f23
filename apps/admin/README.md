@@ -11,6 +11,7 @@ Next.js admin app for Career Intelligence assessments. Deployed separately at **
 - Manage saved careers; see algorithmic matches
 - Generate/regenerate structured AI reports via OpenRouter (cached in `assessment_analyses`)
 - Download full assessment PDF
+- Manage project reports (text, images, videos) and choose which are visible on seedfound.org
 
 ## Local development
 
@@ -46,6 +47,8 @@ WHERE id = (
 | `OPENROUTER_API_KEY` | AI reports |
 | `OPENROUTER_MODEL` | Optional; defaults to `openrouter/free` (auto free router). Avoid expired `:free` slugs. |
 | `APP_ORIGIN` / `NEXT_PUBLIC_SITE_URL` | `http://localhost:3001` locally; `https://admin.seedfound.org` in prod |
+| `PUBLIC_SITE_URL` | Public website origin (`http://localhost:3000` / `https://seedfound.org`) |
+| `REVALIDATE_SECRET` | Same value as the public site; used to refresh `/our-stories` after publish |
 
 ## Supabase Auth redirects
 
@@ -80,3 +83,11 @@ Do **not** edit `is_admin` from the UI — promote/demote only via SQL or Table 
 Apply migration `supabase/migrations/20260730120000_profiles_v1_personal_fields.sql` before using the new profile form.
 
 Users edit at `/career/profile`. Admins edit the same fields on the user **Profile** tab. AI Generate includes these fields in the counselor prompt when present.
+
+## Project reports (website)
+
+1. Apply `supabase/migrations/20260819120000_project_reports.sql` and `20260819120001_project_reports_seed.sql`.
+2. Open **Reports** in the admin nav.
+3. Create or edit a report, add a cover image, gallery images/videos, or a YouTube/Vimeo URL.
+4. **Show on website** publishes to `/our-stories`. **Hide** keeps the report in admin only.
+5. Set `PUBLIC_SITE_URL` and matching `REVALIDATE_SECRET` so the public site updates immediately after publish.

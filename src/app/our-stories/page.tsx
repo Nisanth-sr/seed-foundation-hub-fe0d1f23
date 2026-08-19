@@ -2,7 +2,8 @@ import { Hero } from "@/components/site/Hero";
 import { Section } from "@/components/site/Section";
 import { ArticleCard } from "@/components/site/ArticleCard";
 import { WorkFilters } from "@/components/site/WorkFilters";
-import { STORIES, WORK_AREAS, type FocusArea } from "@/lib/content";
+import { WORK_AREAS, type FocusArea } from "@/lib/content";
+import { getPublishedReports } from "@/lib/project-reports";
 import { createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({
@@ -12,6 +13,8 @@ export const metadata = createMetadata({
   path: "/our-stories",
 });
 
+export const revalidate = 60;
+
 export default async function OurStoriesPage({
   searchParams,
 }: {
@@ -19,8 +22,8 @@ export default async function OurStoriesPage({
 }) {
   const params = await searchParams;
   const area = (params.area as FocusArea | undefined) || "all";
-  const filteredStories =
-    area === "all" ? STORIES : STORIES.filter((s) => s.focusArea === area);
+  const reports = await getPublishedReports();
+  const filteredStories = area === "all" ? reports : reports.filter((s) => s.focusArea === area);
 
   return (
     <>
@@ -53,7 +56,7 @@ export default async function OurStoriesPage({
               excerpt={s.excerpt}
               category={s.category}
               href={`/our-stories/${s.slug}`}
-              image={s.image}
+              image={s.coverImageUrl}
             />
           ))}
         </div>

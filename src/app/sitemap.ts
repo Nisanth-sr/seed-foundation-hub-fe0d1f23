@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
-import { PROGRAMS, SITE, STORIES } from "@/lib/content";
+import { PROGRAMS, SITE } from "@/lib/content";
+import { getPublishedReports } from "@/lib/project-reports";
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = SITE.url;
   const staticRoutes = ["", "/about", "/our-stories", "/get-involved", "/feedback"].map((path) => ({
     url: `${base}${path || "/"}`,
@@ -13,9 +14,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     lastModified: new Date(),
   }));
 
-  const stories = STORIES.map((s) => ({
+  const reports = await getPublishedReports();
+  const stories = reports.map((s) => ({
     url: `${base}/our-stories/${s.slug}`,
-    lastModified: new Date(),
+    lastModified: s.updatedAt ? new Date(s.updatedAt) : new Date(),
   }));
 
   return [...staticRoutes, ...programs, ...stories];

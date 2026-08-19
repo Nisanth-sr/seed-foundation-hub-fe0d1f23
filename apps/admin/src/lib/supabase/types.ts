@@ -170,6 +170,107 @@ export type Database = {
         }
         Relationships: []
       }
+      project_reports: {
+        Row: {
+          body: string
+          category: string
+          cover_image_path: string | null
+          created_at: string
+          created_by: string | null
+          event_date: string | null
+          excerpt: string
+          focus_area: string
+          id: string
+          published_at: string | null
+          slug: string
+          sort_order: number
+          status: string
+          title: string
+          updated_at: string
+          venue: string | null
+        }
+        Insert: {
+          body?: string
+          category: string
+          cover_image_path?: string | null
+          created_at?: string
+          created_by?: string | null
+          event_date?: string | null
+          excerpt?: string
+          focus_area: string
+          id?: string
+          published_at?: string | null
+          slug: string
+          sort_order?: number
+          status?: string
+          title: string
+          updated_at?: string
+          venue?: string | null
+        }
+        Update: {
+          body?: string
+          category?: string
+          cover_image_path?: string | null
+          created_at?: string
+          created_by?: string | null
+          event_date?: string | null
+          excerpt?: string
+          focus_area?: string
+          id?: string
+          published_at?: string | null
+          slug?: string
+          sort_order?: number
+          status?: string
+          title?: string
+          updated_at?: string
+          venue?: string | null
+        }
+        Relationships: []
+      }
+      project_report_media: {
+        Row: {
+          alt_text: string | null
+          caption: string | null
+          created_at: string
+          embed_url: string | null
+          id: string
+          kind: string
+          report_id: string
+          sort_order: number
+          storage_path: string | null
+        }
+        Insert: {
+          alt_text?: string | null
+          caption?: string | null
+          created_at?: string
+          embed_url?: string | null
+          id?: string
+          kind: string
+          report_id: string
+          sort_order?: number
+          storage_path?: string | null
+        }
+        Update: {
+          alt_text?: string | null
+          caption?: string | null
+          created_at?: string
+          embed_url?: string | null
+          id?: string
+          kind?: string
+          report_id?: string
+          sort_order?: number
+          storage_path?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_report_media_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "project_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string

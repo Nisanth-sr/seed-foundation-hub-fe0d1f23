@@ -37,6 +37,7 @@ Server-only:
 | Variable | Purpose |
 |----------|---------|
 | `SUPABASE_SERVICE_ROLE_KEY` | Service role (bypasses RLS; use only on the server) |
+| `REVALIDATE_SECRET` | Shared secret so the admin app can refresh published reports on this site |
 | `GOOGLE_SERVICE_ACCOUNT_EMAIL` | Service account email for Sheets append |
 | `GOOGLE_PRIVATE_KEY` | Service account private key (escape newlines as `\n`) |
 | `GOOGLE_SHEETS_SPREADSHEET_ID` | Target spreadsheet ID from the sheet URL |
@@ -71,3 +72,14 @@ Separate Next.js app in `apps/admin`, intended for **admin.seedfound.org** (own 
 - Donation / newsletter / GA4 are UI-ready stubs until API keys are provided.
 - Images: place assets under `public/images/` (logo and hero placeholders included).
 - Migrating from Lovable/TanStack Start disconnects Lovable editor sync; use GitHub + Vercel.
+
+## Project reports
+
+Admins manage program reports in the admin console (`/reports`). Published reports appear on `/our-stories` automatically.
+
+Apply migrations:
+
+- `supabase/migrations/20260819120000_project_reports.sql`
+- `supabase/migrations/20260819120001_project_reports_seed.sql`
+
+Set the same `REVALIDATE_SECRET` on both Vercel projects. Set `PUBLIC_SITE_URL` on the admin project to `https://seedfound.org` (or `http://localhost:3000` locally).

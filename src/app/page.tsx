@@ -17,10 +17,10 @@ import {
   HERO,
   BELIEF,
   PILLARS,
-  STORIES,
   APPROACH_STEPS,
   IMPACT,
 } from "@/lib/content";
+import { getPublishedReports } from "@/lib/project-reports";
 import { createMetadata } from "@/lib/seo";
 
 export const metadata = createMetadata({
@@ -29,6 +29,8 @@ export const metadata = createMetadata({
   path: "/",
 });
 
+export const revalidate = 60;
+
 const pillarIcons = {
   health: HeartPulse,
   education: GraduationCap,
@@ -36,7 +38,8 @@ const pillarIcons = {
   "disaster-relief": HandHeart,
 };
 
-export default function HomePage() {
+export default async function HomePage() {
+  const stories = (await getPublishedReports()).slice(0, 3);
   return (
     <>
       <HomeHero />
@@ -76,14 +79,14 @@ export default function HomePage() {
 
       <Section title="Stories of Impact" subtitle="Community action, told through the people and places we serve.">
         <div className="grid gap-8 md:grid-cols-3">
-          {STORIES.slice(0, 3).map((s) => (
+          {stories.map((s) => (
             <ArticleCard
               key={s.slug}
               title={s.title}
               excerpt={s.excerpt}
               category={s.category}
               href={`/our-stories/${s.slug}`}
-              image={s.image}
+              image={s.coverImageUrl}
             />
           ))}
         </div>
