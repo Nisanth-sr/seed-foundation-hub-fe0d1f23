@@ -6,6 +6,7 @@ import { ArticleCard } from "@/components/site/ArticleCard";
 import { Button } from "@/components/ui/button";
 import { ShareButtons } from "@/components/site/ShareButtons";
 import { ReportMediaGallery } from "@/components/site/ReportMediaGallery";
+import { ProjectReportBody } from "@/components/site/ProjectReportBody";
 import { getProgram, PROGRAMS } from "@/lib/content";
 import { getPublishedReportBySlug, getPublishedReports } from "@/lib/project-reports";
 import { createMetadata } from "@/lib/seo";
@@ -59,30 +60,22 @@ export default async function OurStoryDetailPage({
       <>
         <Hero title={report.title} height="medium" align="left" backgroundImage={report.coverImageUrl} />
         <Section spacing="md">
-          <div className="mb-6 flex flex-wrap items-center gap-4">
-            <span className="bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
-              {report.category}
-            </span>
-            {report.eventDate && (
-              <span className="text-sm text-muted-foreground">
-                {new Date(`${report.eventDate}T00:00:00`).toLocaleDateString("en-IN", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                })}
-              </span>
-            )}
-            {report.venue && <span className="text-sm text-muted-foreground">{report.venue}</span>}
+          <div className="mx-auto mb-10 flex max-w-3xl flex-wrap items-center justify-between gap-4">
             <ShareButtons title={report.title} path={`/our-stories/${slug}`} />
           </div>
-          <article className="prose-seed max-w-3xl">
-            <p className="whitespace-pre-line text-lg leading-relaxed md:text-xl">{report.body}</p>
-          </article>
-          <ReportMediaGallery media={report.media} />
-          <div className="mt-12">
-            <Button asChild variant="secondary">
-              <Link href="/our-stories">← All stories</Link>
-            </Button>
+          <ProjectReportBody
+            body={report.body}
+            category={report.category}
+            eventDate={report.eventDate}
+            venue={report.venue}
+          />
+          <div className="mx-auto max-w-3xl">
+            <ReportMediaGallery media={report.media} />
+            <div className="mt-12">
+              <Button asChild variant="secondary">
+                <Link href="/our-stories">← All stories</Link>
+              </Button>
+            </div>
           </div>
         </Section>
         {related.length > 0 && (

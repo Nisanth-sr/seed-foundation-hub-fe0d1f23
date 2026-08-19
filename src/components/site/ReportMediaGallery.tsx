@@ -13,20 +13,20 @@ export function ReportMediaGallery({ media }: { media: ReportMedia[] }) {
   if (media.length === 0) return null;
 
   return (
-    <section className="mt-12">
-      <h2 className="mb-6 text-2xl font-semibold">Photos and videos</h2>
-      <div className="grid gap-8 md:grid-cols-2">
+    <section className="mt-16">
+      <h2 className="mb-6 text-2xl font-bold">Photos and videos</h2>
+      <div className="grid gap-6 md:grid-cols-2">
         {media.map((item) => (
-          <figure key={item.id} className="space-y-3">
+          <figure key={item.id} className="border border-foreground bg-background">
             {item.kind === "image" && item.url && (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={item.url} alt={item.altText || item.caption || ""} className="w-full border border-foreground object-cover" />
+              <img src={item.url} alt={item.altText || item.caption || ""} className="aspect-[4/3] w-full object-cover" />
             )}
             {item.kind === "video" && item.url && (
-              <video src={item.url} className="w-full border border-foreground bg-foreground" controls playsInline />
+              <video src={item.url} className="aspect-video w-full bg-foreground object-cover" controls playsInline />
             )}
             {item.kind === "video_embed" && (item.embedSrc || (item.url && toVideoEmbedSrc(item.url))) && (
-              <div className="relative aspect-video w-full border border-foreground">
+              <div className="relative aspect-video w-full">
                 <iframe
                   src={item.embedSrc || toVideoEmbedSrc(item.url!)!}
                   title={item.caption || "Report video"}
@@ -36,7 +36,9 @@ export function ReportMediaGallery({ media }: { media: ReportMedia[] }) {
                 />
               </div>
             )}
-            {item.caption && <figcaption className="text-sm leading-relaxed">{item.caption}</figcaption>}
+            {item.caption && (
+              <figcaption className="border-t border-foreground px-4 py-3 text-sm leading-relaxed">{item.caption}</figcaption>
+            )}
           </figure>
         ))}
       </div>
