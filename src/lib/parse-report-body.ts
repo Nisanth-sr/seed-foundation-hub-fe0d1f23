@@ -83,19 +83,13 @@ export function parseReportBody(raw: string): ParsedReport {
     entries: [] as ReportMetaEntry[],
   };
 
-  function startSection(number: string, title: string, level: 1 | 2) {
-    if (current) {
-      flushBuffer(current.blocks, buffer);
-      parsed.sections.push(current);
-    }
-    current = {
-      id: `${level}-${number}-${title}`.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
-      number,
-      title,
-      level,
-      blocks: [],
-    };
-  }
+  const makeSection = (number: string, title: string, level: 1 | 2): ReportSection => ({
+    id: `${level}-${number}-${title}`.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+    number,
+    title,
+    level,
+    blocks: [],
+  });
 
   for (const line of lines) {
     if (!line) {
@@ -120,19 +114,22 @@ export function parseReportBody(raw: string): ParsedReport {
       }
     }
 
-    if (isSectionHeading(line)) {
-      const match = line.match(SECTION_RE)!;
-      startSection(match[1], match[2].trim(), 1);
-      continue;
-    }
-    if (isSubsectionHeading(line)) {
-      const match = line.match(SUBSECTION_RE)!;
-      startSection(match[1], match[2].trim(), 2);
-      continue;
-    }
-
-    if (!current) {
-      startSection("", line, 1);
+    if (isSectionHeading(line) || isSubsectionHeading(line) || !current) {
+      if (current) {
+        flushBuffer(current.blocks, buffer);
+        parsed.sections.push(current);
+      }
+      if (isSectionHeading(line)) {
+        const match = line.match(SECTION_RE)!;
+        current = makeSection(match[1], match[2].trim(), 1);
+        continue;
+      }
+      if (isSubsectionHeading(line)) {
+        const match = line.match(SUBSECTION_RE)!;
+        current = makeSection(match[1], match[2].trim(), 2);
+        continue;
+      }
+      current = makeSection("", line, 1);
       continue;
     }
 
