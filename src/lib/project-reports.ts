@@ -120,36 +120,36 @@ function isMissingFeaturedColumn(error: { message?: string } | null) {
 async function fetchPublishedRows(): Promise<ReportRow[] | null> {
   try {
     const supabase = createPublicSupabase();
-    const query = () =>
-      supabase
-        .from("project_reports")
-        .select(LIST_SELECT)
-        .eq("status", "published")
-        .order("event_date", { ascending: false, nullsFirst: false })
-        .order("created_at", { ascending: false })
-        .limit(LIST_LIMIT);
+    const primary = await supabase
+      .from("project_reports")
+      .select(LIST_SELECT)
+      .eq("status", "published")
+      .order("event_date", { ascending: false, nullsFirst: false })
+      .order("created_at", { ascending: false })
+      .limit(LIST_LIMIT);
 
-    let { data, error } = await query();
+    const result =
+      primary.error && isMissingFeaturedColumn(primary.error)
+        ? await supabase
+            .from("project_reports")
+            .select(LIST_SELECT_LEGACY)
+            .eq("status", "published")
+            .order("event_date", { ascending: false, nullsFirst: false })
+            .order("created_at", { ascending: false })
+            .limit(LIST_LIMIT)
+        : primary;
 
-    if (error && isMissingFeaturedColumn(error)) {
-      const retry = await supabase
-        .from("project_reports")
-        .select(LIST_SELECT_LEGACY)
-        .eq("status", "published")
-        .order("event_date", { ascending: false, nullsFirst: false })
-        .order("created_at", { ascending: false })
-        .limit(LIST_LIMIT);
-      data = retry.data;
-      error = retry.error;
-    }
-
-    if (error) {
-      if (isMissingRelation(error)) return null;
-      console.error("[project-reports]", error.message);
+    if (result.error) {
+      if (isMissingRelation(result.error)) return null;
+      console.error("[project-reports]", result.error.message);
       return [];
     }
 
-    return (data ?? []) as ReportRow[];
+    return (result.data ?? []).map((row) => ({
+      ...row,
+      featured_on_homepage:
+        "featured_on_homepage" in row ? Boolean(row.featured_on_homepage) : false,
+    }));
   } catch (err) {
     console.error("[project-reports]", err);
     return [];

@@ -87,25 +87,24 @@ export async function listReports(): Promise<ReportListRow[]> {
   const selectLegacy =
     "id, slug, title, focus_area, category, event_date, status, cover_image_path, updated_at";
 
-  let { data, error } = await supabaseAdmin
+  const primary = await supabaseAdmin
     .from("project_reports")
     .select(selectWithFeatured)
     .order("event_date", { ascending: false, nullsFirst: false })
     .order("updated_at", { ascending: false });
 
-  if (error && /featured_on_homepage/i.test(error.message)) {
-    const retry = await supabaseAdmin
-      .from("project_reports")
-      .select(selectLegacy)
-      .order("event_date", { ascending: false, nullsFirst: false })
-      .order("updated_at", { ascending: false });
-    data = retry.data;
-    error = retry.error;
-  }
+  const result =
+    primary.error && /featured_on_homepage/i.test(primary.error.message)
+      ? await supabaseAdmin
+          .from("project_reports")
+          .select(selectLegacy)
+          .order("event_date", { ascending: false, nullsFirst: false })
+          .order("updated_at", { ascending: false })
+      : primary;
 
-  if (error) throw new Error(error.message);
+  if (result.error) throw new Error(result.error.message);
 
-  return (data ?? []).map((row) => ({
+  return (result.data ?? []).map((row) => ({
     id: row.id,
     slug: row.slug,
     title: row.title,
@@ -113,7 +112,7 @@ export async function listReports(): Promise<ReportListRow[]> {
     category: row.category,
     eventDate: row.event_date,
     status: row.status === "published" ? "published" : "draft",
-    featuredOnHomepage: !!row.featured_on_homepage,
+    featuredOnHomepage: Boolean((row as { featured_on_homepage?: boolean }).featured_on_homepage),
     coverImageUrl: resolveAdminMediaUrl(row.cover_image_path),
     updatedAt: row.updated_at,
   }));
