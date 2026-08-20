@@ -13,7 +13,9 @@ import {
   type FocusArea,
   type ProjectReport,
 } from "@/lib/project-report-shared";
+import { serializeReportBody, toEditorReport, type EditorReport } from "@/lib/parse-report-body";
 import { toVideoEmbedSrc } from "@/lib/video-embed";
+import { ReportBodyEditor } from "@/components/report-body-editor";
 import {
   actionAddVideoEmbed,
   actionAttachMedia,
@@ -44,7 +46,7 @@ export function ReportEditor({ report }: { report: ProjectReport }) {
   const [slug, setSlug] = useState(report.slug);
   const [slugTouched, setSlugTouched] = useState(!report.slug.startsWith("draft-"));
   const [excerpt, setExcerpt] = useState(report.excerpt);
-  const [body, setBody] = useState(report.body);
+  const [reportBody, setReportBody] = useState<EditorReport>(() => toEditorReport(report.body));
   const [focusArea, setFocusArea] = useState<FocusArea>(report.focusArea);
   const [eventDate, setEventDate] = useState(report.eventDate ?? "");
   const [venue, setVenue] = useState(report.venue ?? "");
@@ -69,17 +71,21 @@ export function ReportEditor({ report }: { report: ProjectReport }) {
     if (!slugTouched) setSlug(slugify(value) || slug);
   }
 
+  function payload() {
+    return {
+      title,
+      slug,
+      excerpt,
+      body: serializeReportBody(reportBody),
+      focusArea,
+      eventDate: eventDate || null,
+      venue,
+    };
+  }
+
   function save() {
     startTransition(async () => {
-      const result = await actionSaveReport(report.id, {
-        title,
-        slug,
-        excerpt,
-        body,
-        focusArea,
-        eventDate: eventDate || null,
-        venue,
-      });
+      const result = await actionSaveReport(report.id, payload());
       if (!result.ok) toast.error(result.error);
       else {
         toast.success("Saved");
@@ -90,15 +96,7 @@ export function ReportEditor({ report }: { report: ProjectReport }) {
 
   function setVisible(next: "draft" | "published") {
     startTransition(async () => {
-      const saved = await actionSaveReport(report.id, {
-        title,
-        slug,
-        excerpt,
-        body,
-        focusArea,
-        eventDate: eventDate || null,
-        venue,
-      });
+      const saved = await actionSaveReport(report.id, payload());
       if (!saved.ok) {
         toast.error(saved.error);
         return;
@@ -116,15 +114,7 @@ export function ReportEditor({ report }: { report: ProjectReport }) {
 
   function setHomepage(next: boolean) {
     startTransition(async () => {
-      const saved = await actionSaveReport(report.id, {
-        title,
-        slug,
-        excerpt,
-        body,
-        focusArea,
-        eventDate: eventDate || null,
-        venue,
-      });
+      const saved = await actionSaveReport(report.id, payload());
       if (!saved.ok) {
         toast.error(saved.error);
         return;
@@ -238,7 +228,7 @@ export function ReportEditor({ report }: { report: ProjectReport }) {
         </CardHeader>
         <CardContent className="grid gap-4 md:grid-cols-2">
           <div className="md:col-span-2 space-y-1.5">
-            <Label htmlFor="title">Title</Label>
+            <Label htmlFor="title">Page title (hero and story cards)</Label>
             <Input id="title" value={title} onChange={(e) => onTitleChange(e.target.value)} />
           </div>
           <div className="space-y-1.5">
@@ -270,19 +260,26 @@ export function ReportEditor({ report }: { report: ProjectReport }) {
           <div className="space-y-1.5">
             <Label htmlFor="eventDate">Event date</Label>
             <Input id="eventDate" type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)} />
+            <p className="text-xs text-muted-foreground">Shown with a calendar icon on the story page.</p>
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="venue">Venue</Label>
             <Input id="venue" value={venue} onChange={(e) => setVenue(e.target.value)} />
+            <p className="text-xs text-muted-foreground">Shown with a location icon on the story page.</p>
           </div>
           <div className="md:col-span-2 space-y-1.5">
             <Label htmlFor="excerpt">Short summary (shown on cards)</Label>
             <Textarea id="excerpt" rows={3} value={excerpt} onChange={(e) => setExcerpt(e.target.value)} />
           </div>
-          <div className="md:col-span-2 space-y-1.5">
-            <Label htmlFor="body">Report body</Label>
-            <Textarea id="body" className="min-h-[320px] font-mono text-xs leading-relaxed" value={body} onChange={(e) => setBody(e.target.value)} />
-          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Report content</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ReportBodyEditor value={reportBody} onChange={setReportBody} />
         </CardContent>
       </Card>
 

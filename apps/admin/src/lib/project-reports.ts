@@ -13,6 +13,7 @@ import {
   type ReportPatch,
   type ReportStatus,
 } from "./project-report-shared";
+import { createEmptyReport, serializeReportBody } from "./parse-report-body";
 
 export {
   FOCUS_AREAS,
@@ -162,7 +163,7 @@ export async function createDraftReport(createdBy: string): Promise<string> {
       title: "Untitled report",
       slug,
       excerpt: "",
-      body: "",
+      body: serializeReportBody(createEmptyReport()),
       focus_area: "health",
       category: FOCUS_AREA_LABELS.health,
       status: "draft",
