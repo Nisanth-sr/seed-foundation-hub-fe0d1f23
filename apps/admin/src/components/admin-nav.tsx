@@ -7,13 +7,14 @@ import { cn } from "@/lib/utils";
 const LINKS = [
   { href: "/", label: "Users" },
   { href: "/reports", label: "Reports" },
+  { href: "/budget", label: "Budget" },
 ];
 
 export function AdminNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex items-center gap-1" aria-label="Admin">
+    <nav className="flex flex-wrap items-center gap-1" aria-label="Admin">
       {LINKS.map((link) => {
         const active = link.href === "/" ? pathname === "/" || pathname.startsWith("/users") : pathname.startsWith(link.href);
         return (

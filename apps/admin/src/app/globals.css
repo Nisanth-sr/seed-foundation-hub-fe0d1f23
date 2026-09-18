@@ -59,3 +59,44 @@ body {
   margin-inline: auto;
   padding-inline: 1rem;
 }
+
+@media print {
+  header,
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: white;
+  }
+
+  body:has(.print-doc) * {
+    visibility: hidden;
+  }
+
+  body:has(.print-doc) .print-doc,
+  body:has(.print-doc) .print-doc * {
+    visibility: visible;
+  }
+
+  body:has(.print-doc) .print-overlay {
+    position: static !important;
+    inset: auto !important;
+    background: transparent !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  .print-doc {
+    display: block !important;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    max-width: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    overflow: visible !important;
+    background: white !important;
+  }
+}

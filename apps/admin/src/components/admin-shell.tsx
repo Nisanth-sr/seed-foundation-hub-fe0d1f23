@@ -13,7 +13,7 @@ export function AdminShell({
 }) {
   return (
     <div className="min-h-dvh bg-background">
-      <header className="border-b border-foreground">
+      <header className="no-print border-b border-foreground">
         <div className="container-x flex h-14 items-center justify-between gap-4">
           <div className="flex items-center gap-6">
             <Link href="/" className="font-semibold tracking-tight">
