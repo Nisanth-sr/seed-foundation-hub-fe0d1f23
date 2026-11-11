@@ -32,7 +32,7 @@ export async function GET(request: Request) {
   }
 
   const ids = conversations.map((conversation) => conversation.id);
-  let messages: Array<{ id: string; conversation_id: string; user_id: string; role: string; content: string; created_at: string }> = [];
+  const messages: Array<{ id: string; conversation_id: string; user_id: string; role: string; content: string; created_at: string }> = [];
   for (let idOffset = 0; idOffset < ids.length; idOffset += 100) {
     const conversationIds = ids.slice(idOffset, idOffset + 100);
     for (let offset = 0; ; offset += 1000) {
