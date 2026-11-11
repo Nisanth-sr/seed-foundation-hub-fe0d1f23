@@ -7,6 +7,9 @@
     "build": "next build",
     "start": "next start --port 3002"
   },
+  "engines": {
+    "node": "22.x"
+  },
   "dependencies": {
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.110.1",

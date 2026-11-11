@@ -4,7 +4,7 @@ This is a standalone Next.js application that shares the main SEED Supabase Auth
 
 ## Requirements
 
-- Node.js 20 or newer and npm
+- Node.js 22.x and npm
 - Access to the SEED Supabase project
 - An OpenRouter API key and a model available to that key
 
@@ -43,7 +43,7 @@ Open `http://localhost:3002`. The admin interface is available at `/chatbot` in 
 
 ## Deployment
 
-Deploy this Next.js app as its own project with `apps/chatbot` as the application root, Node.js 20+, and the environment variables above. `next.config.ts` enables standalone output; `vercel.json` configures the Next.js build and output for Vercel. When deploying from the monorepo root instead, install from the repository root and use `npm run build --workspace @seed/chatbot` as the build command. Configure the chatbot's public URL in `NEXT_PUBLIC_CHATBOT_URL`.
+Deploy this Next.js app as its own project with `apps/chatbot` as the application root, Node.js 22.x, and the environment variables above. `next.config.ts` enables standalone output; `vercel.json` configures the Next.js build and output for Vercel. When deploying from the monorepo root instead, install from the repository root and use `npm run build --workspace @seed/chatbot` as the build command. Configure the chatbot's public URL in `NEXT_PUBLIC_CHATBOT_URL`.
 
 The admin app remains a separate deployment and must have the same Supabase URL, publishable key, and service-role key. Its existing authenticated middleware protects the `/chatbot` page; each new admin API route independently calls `requireAdmin()` before reading or writing chatbot records.
 
