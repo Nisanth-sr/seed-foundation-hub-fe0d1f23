@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowUp, Menu, Plus, Sparkles } from "lucide-react";
+import { ArrowUp, Menu, Plus, Sparkles, X } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
@@ -26,6 +26,15 @@ export function ChatClient({ email }: { email: string }) {
   const suppressAutoScroll = useRef(false);
   const activeConversationRef = useRef("");
   const conversationLoadId = useRef(0);
+
+  useEffect(() => {
+    if (!sidebarOpen) return;
+    function closeOnEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") setSidebarOpen(false);
+    }
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [sidebarOpen]);
 
   const refreshConversations = useCallback(async () => {
     const response = await fetch("/api/conversations?offset=0");
@@ -185,8 +194,20 @@ export function ChatClient({ email }: { email: string }) {
 
   return (
     <div className="chat-layout">
-      <aside className={`sidebar${sidebarOpen ? " open" : ""}`}>
-        <div className="brand"><span className="brand-mark">S</span><span>SEED Assistant</span></div>
+      <button
+        className={`sidebar-backdrop${sidebarOpen ? " visible" : ""}`}
+        type="button"
+        aria-label="Close conversation list"
+        tabIndex={sidebarOpen ? 0 : -1}
+        onClick={() => setSidebarOpen(false)}
+      />
+      <aside id="conversation-sidebar" className={`sidebar${sidebarOpen ? " open" : ""}`}>
+        <div className="sidebar-heading">
+          <div className="brand"><span className="brand-mark">S</span><span>SEED Assistant</span></div>
+          <button className="sidebar-close" type="button" onClick={() => setSidebarOpen(false)} aria-label="Close conversation list">
+            <X size={18} />
+          </button>
+        </div>
         <button className="new-chat" onClick={startNewChat}><Plus size={16} style={{ verticalAlign: "middle", marginRight: 8 }} />New chat</button>
         <div className="sidebar-label">Your conversations</div>
         <div className="conversation-list">
@@ -206,7 +227,15 @@ export function ChatClient({ email }: { email: string }) {
       <main className="main-panel">
         <header className="chat-topbar">
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <button className="mobile-menu" onClick={() => setSidebarOpen((open) => !open)} aria-label="Toggle conversation list"><Menu size={18} /></button>
+            <button
+              className="mobile-menu"
+              onClick={() => setSidebarOpen((open) => !open)}
+              aria-label="Toggle conversation list"
+              aria-expanded={sidebarOpen}
+              aria-controls="conversation-sidebar"
+            >
+              <Menu size={18} />
+            </button>
             <span>SEED Assistant</span>
           </div>
           <span>Private conversation</span>
