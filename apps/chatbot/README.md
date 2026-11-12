@@ -48,7 +48,7 @@ Open `http://localhost:3002`. The admin interface is available at `/chatbot` in 
 
 ## Deployment
 
-Deploy this Next.js app as its own project with `apps/chatbot` as the application root, Node.js 22.x, and the environment variables above. `next.config.ts` enables standalone output; `vercel.json` configures the Next.js build and output for Vercel. When deploying from the monorepo root instead, install from the repository root and use `npm run build --workspace @seed/chatbot` as the build command. Configure the chatbot's public URL in `NEXT_PUBLIC_CHATBOT_URL`.
+Deploy this Next.js app as its own project with `apps/chatbot` as the Vercel project root, Node.js 22.x, and the environment variables above. `next.config.ts` enables standalone output; `vercel.json` configures the Next.js build and output and disables workspace discovery during the app-root install. ESLint and its Next.js configuration are declared by the chatbot app so `next build` can run lint and type checks. When deploying from the monorepo root instead, install from the repository root and use `npm run build --workspace @seed/chatbot` as the build command. Configure the chatbot's public URL in `NEXT_PUBLIC_CHATBOT_URL`.
 
 The admin app remains a separate deployment and must have the same Supabase URL, publishable key, and service-role key. Its existing authenticated middleware protects the `/chatbot` page; each new admin API route independently calls `requireAdmin()` before reading or writing chatbot records.
 

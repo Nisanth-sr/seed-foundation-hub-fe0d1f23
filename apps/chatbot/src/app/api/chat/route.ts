@@ -44,6 +44,7 @@ async function logActivity(
 export async function POST(request: Request) {
   const user = await getCurrentUser();
   if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
+  const authenticatedUserId = user.id;
 
   let parsed: z.infer<typeof requestSchema>;
   try {
@@ -137,7 +138,7 @@ export async function POST(request: Request) {
 
   async function settleTokens(actualTokens: number) {
     const { error } = await admin.rpc("chatbot_settle_daily_tokens", {
-      p_user_id: user.id,
+      p_user_id: authenticatedUserId,
       p_usage_date: usageDate,
       p_reserved_tokens: reservedTokens,
       p_actual_tokens: actualTokens,
