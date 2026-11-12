@@ -11,9 +11,17 @@ export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
   const isLoginPage = path === "/login";
   const isPublicConfigRoute = path === "/api/auth/config";
+  const isPublicPwaResource =
+    path === "/manifest.webmanifest" ||
+    path === "/sw.js" ||
+    path === "/offline.html" ||
+    path.startsWith("/icons/");
+  const isPublicRoute = isLoginPage || isPublicConfigRoute || isPublicPwaResource;
+
+  if (isPublicPwaResource) return response;
 
   if (!url || !key) {
-    if (isLoginPage || isPublicConfigRoute) return response;
+    if (isPublicRoute) return response;
     return Response.json({ error: "Authentication is not configured" }, { status: 500 });
   }
 
@@ -31,7 +39,7 @@ export async function middleware(request: NextRequest) {
   });
   const { data: { user } } = await supabase.auth.getUser();
 
-  if (!user && !isLoginPage && !isPublicConfigRoute) {
+  if (!user && !isPublicRoute) {
     const login = request.nextUrl.clone();
     login.pathname = "/login";
     login.searchParams.set("next", request.nextUrl.pathname);
