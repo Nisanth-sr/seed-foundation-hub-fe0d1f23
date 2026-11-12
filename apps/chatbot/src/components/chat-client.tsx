@@ -264,7 +264,15 @@ export function ChatClient({ email }: { email: string }) {
                   <div className="message-text">
                     {message.content
                       ? <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
-                      : busy ? "…" : ""}
+                      : busy ? (
+                        <span className="thinking-wave" role="status" aria-label="Thinking..">
+                          {"Thinking..".split("").map((character, index) => (
+                            <span key={index} aria-hidden="true" style={{ animationDelay: `${index * 55}ms` }}>
+                              {character}
+                            </span>
+                          ))}
+                        </span>
+                      ) : ""}
                   </div>
                 </div>
               ))}
