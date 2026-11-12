@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#8ddd30">
+    <title>Offline · SEED Chat</title>
+    <style>
+      :root { color-scheme: light; font-family: Arial, Helvetica, sans-serif; color: #000; background: #fff; }
+      body { min-height: 100vh; margin: 0; display: grid; place-items: center; padding: 24px; box-sizing: border-box; }
+      main { width: min(440px, 100%); text-align: center; }
+      .mark { width: 52px; height: 52px; margin: 0 auto 20px; display: grid; place-items: center; border-radius: 12px; background: #8ddd30; font-size: 24px; font-weight: 700; }
+      h1 { margin: 0 0 10px; font-size: 24px; }
+      p { color: #555; line-height: 1.6; }
+      .retry { display: inline-block; margin-top: 12px; padding: 11px 18px; border-radius: 6px; background: #8ddd30; color: #000; font-weight: 600; text-decoration: none; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="mark" aria-hidden="true">S</div>
+      <h1>You’re offline</h1>
+      <p>Your chats are kept private and are not stored for offline use. Reconnect to continue your conversation.</p>
+      <a class="retry" href="/">Try again</a>
+    </main>
+  </body>
+</html>

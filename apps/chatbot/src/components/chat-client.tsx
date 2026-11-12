@@ -27,6 +27,13 @@ export function ChatClient({ email }: { email: string }) {
   const activeConversationRef = useRef("");
   const conversationLoadId = useRef(0);
 
+  useEffect(() => {
+    if (!("serviceWorker" in navigator)) return;
+    navigator.serviceWorker.register("/sw.js").catch((cause: unknown) => {
+      console.error("Could not register the SEED Chat service worker", cause);
+    });
+  }, []);
+
   const refreshConversations = useCallback(async () => {
     const response = await fetch("/api/conversations?offset=0");
     if (!response.ok) throw new Error("Could not load conversations");
