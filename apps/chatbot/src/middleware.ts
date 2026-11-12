@@ -3,11 +3,17 @@ import { NextResponse, type NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request: { headers: request.headers } });
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+  const key =
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+    process.env.SUPABASE_PUBLISHABLE_KEY ||
+    process.env.SUPABASE_ANON_KEY;
+  const path = request.nextUrl.pathname;
+  const isLoginPage = path === "/login";
+  const isPublicConfigRoute = path === "/api/auth/config";
 
   if (!url || !key) {
-    if (request.nextUrl.pathname === "/login") return response;
+    if (isLoginPage || isPublicConfigRoute) return response;
     return Response.json({ error: "Authentication is not configured" }, { status: 500 });
   }
 
@@ -24,9 +30,8 @@ export async function middleware(request: NextRequest) {
     },
   });
   const { data: { user } } = await supabase.auth.getUser();
-  const isLoginPage = request.nextUrl.pathname === "/login";
 
-  if (!user && !isLoginPage) {
+  if (!user && !isLoginPage && !isPublicConfigRoute) {
     const login = request.nextUrl.clone();
     login.pathname = "/login";
     login.searchParams.set("next", request.nextUrl.pathname);

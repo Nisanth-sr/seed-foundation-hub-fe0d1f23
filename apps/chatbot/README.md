@@ -14,14 +14,16 @@ Create `apps/chatbot/.env.local` from `.env.example`:
 
 | Variable | Required | Purpose |
 | --- | --- | --- |
-| `NEXT_PUBLIC_SUPABASE_URL` | Yes | Shared Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes | Public Supabase key used for sign-in and session cookies |
+| `NEXT_PUBLIC_SUPABASE_URL` or `SUPABASE_URL` | Yes | Shared Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_PUBLISHABLE_KEY`, or `SUPABASE_ANON_KEY` | Yes | Public Supabase key used for sign-in and session cookies |
 | `SUPABASE_SERVICE_ROLE_KEY` | Yes | Server-only database access; never use a `NEXT_PUBLIC_` prefix |
 | `OPENROUTER_API_KEY` | Yes | Server-only OpenRouter credential |
 | `OPENROUTER_MODEL` | Yes | OpenRouter model identifier |
 | `NEXT_PUBLIC_CHATBOT_URL` | No | App URL sent as the OpenRouter request referrer; defaults to `http://localhost:3002` |
 
 Set the same Supabase URL and publishable key used by the main site. Set `SUPABASE_SERVICE_ROLE_KEY` only in server environments. The OpenRouter key, model, service-role key, user's instruction, source text, and assembled system prompt are not sent to the browser.
+
+If your hosting dashboard does not accept `NEXT_PUBLIC_` environment variable names, set `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` instead (or use `SUPABASE_ANON_KEY` for the legacy anon key). The app exposes only the Supabase URL and publishable/anon key through a public config endpoint for browser sign-in; these values are intended to be public. Never expose `SUPABASE_SERVICE_ROLE_KEY`.
 
 The existing admin app also needs its normal Supabase environment variables, including `SUPABASE_SERVICE_ROLE_KEY`, to serve chatbot management APIs.
 

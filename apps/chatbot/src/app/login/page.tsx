@@ -14,7 +14,7 @@ export default function LoginPage() {
     setError("");
     setBusy(true);
     try {
-      const supabase = createSupabaseBrowserClient();
+      const supabase = await createSupabaseBrowserClient();
       const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
       if (signInError) throw signInError;
       const next = new URLSearchParams(window.location.search).get("next");

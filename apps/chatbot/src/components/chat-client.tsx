@@ -57,7 +57,8 @@ export function ChatClient({ email }: { email: string }) {
   }
 
   async function signOut() {
-    await createSupabaseBrowserClient().auth.signOut();
+    const supabase = await createSupabaseBrowserClient();
+    await supabase.auth.signOut();
     window.location.assign("/login");
   }
 
