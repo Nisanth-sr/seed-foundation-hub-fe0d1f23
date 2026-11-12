@@ -7,21 +7,31 @@ export async function PUT(request: Request, { params }: { params: Promise<{ user
   const { userId } = await params;
   if (!isUuid(userId)) return Response.json({ error: "User not found" }, { status: 404 });
 
-  let instruction: unknown;
+  let body: { instruction?: unknown; dailyTokenLimit?: unknown };
   try {
-    ({ instruction } = await request.json() as { instruction?: unknown });
+    body = await request.json() as { instruction?: unknown; dailyTokenLimit?: unknown };
   } catch {
-    return Response.json({ error: "A valid instruction is required" }, { status: 400 });
+    return Response.json({ error: "Valid user settings are required" }, { status: 400 });
   }
-  if (typeof instruction !== "string" || new TextEncoder().encode(instruction).byteLength > 20000) {
+  if (typeof body.instruction !== "string" || new TextEncoder().encode(body.instruction).byteLength > 20000) {
     return Response.json({ error: "Instructions must be text no larger than 20 KB" }, { status: 400 });
+  }
+  const dailyTokenLimit = body.dailyTokenLimit ?? null;
+  if (dailyTokenLimit !== null && (
+    typeof dailyTokenLimit !== "number" ||
+    !Number.isSafeInteger(dailyTokenLimit) ||
+    dailyTokenLimit < 0 ||
+    dailyTokenLimit > 10_000_000
+  )) {
+    return Response.json({ error: "Daily token limit must be a whole number from 0 to 10,000,000 or blank" }, { status: 400 });
   }
 
   const { error } = await createChatbotAdminClient().from("chatbot_user_settings").upsert({
     user_id: userId,
-    instruction,
+    instruction: body.instruction,
+    daily_token_limit: dailyTokenLimit,
     updated_at: new Date().toISOString(),
   }, { onConflict: "user_id" });
-  if (error) return Response.json({ error: "Could not save instructions" }, { status: 500 });
+  if (error) return Response.json({ error: "Could not save user settings" }, { status: 500 });
   return Response.json({ ok: true });
 }

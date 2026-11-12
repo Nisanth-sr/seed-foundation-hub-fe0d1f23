@@ -6,13 +6,20 @@ type AdminUser = { id: string; email: string; displayName: string };
 type SourceFile = { id: string; file_name: string; mime_type: string; byte_size: number; created_at: string };
 type Conversation = { id: string; title: string; created_at: string; updated_at: string };
 type ConversationMessage = { id: string; role: string; content: string; created_at: string };
-type UserData = { instruction: string; sources: SourceFile[]; conversations: Conversation[] };
+type UserData = {
+  instruction: string;
+  dailyTokenLimit: number | null;
+  tokenUsage: { used: number; reserved: number; date: string };
+  sources: SourceFile[];
+  conversations: Conversation[];
+};
 type ConversationData = { conversation: Conversation; messages: ConversationMessage[] };
 
 export function AdminChatbotPanel({ users }: { users: AdminUser[] }) {
   const [selectedUserId, setSelectedUserId] = useState(users[0]?.id ?? "");
   const [data, setData] = useState<UserData | null>(null);
   const [instruction, setInstruction] = useState("");
+  const [dailyTokenLimit, setDailyTokenLimit] = useState("");
   const [selectedConversation, setSelectedConversation] = useState<ConversationData | null>(null);
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
@@ -40,6 +47,7 @@ export function AdminChatbotPanel({ users }: { users: AdminUser[] }) {
         if (active) {
           setData(result);
           setInstruction(result.instruction);
+          setDailyTokenLimit(result.dailyTokenLimit === null ? "" : String(result.dailyTokenLimit));
         }
       })
       .catch((error: unknown) => {
@@ -58,13 +66,16 @@ export function AdminChatbotPanel({ users }: { users: AdminUser[] }) {
       const response = await fetch(`/api/chatbot/users/${selectedUserId}/instruction`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ instruction }),
+        body: JSON.stringify({
+          instruction,
+          dailyTokenLimit: dailyTokenLimit.trim() === "" ? null : Number(dailyTokenLimit),
+        }),
       });
       const result = await response.json() as { error?: string };
-      if (!response.ok) throw new Error(result.error ?? "Could not save instructions");
-      setMessage("Instructions saved.");
+      if (!response.ok) throw new Error(result.error ?? "Could not save settings");
+      setMessage("Settings saved.");
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Could not save instructions");
+      setMessage(error instanceof Error ? error.message : "Could not save settings");
     } finally {
       setBusy(false);
     }
@@ -162,7 +173,7 @@ export function AdminChatbotPanel({ users }: { users: AdminUser[] }) {
         <div className="grid gap-5 lg:grid-cols-2">
           <section className="space-y-5">
             <div className="rounded-lg border border-border bg-card p-4">
-              <h2 className="mb-3 text-base font-semibold">Per-user instructions</h2>
+              <h2 className="mb-3 text-base font-semibold">Per-user settings</h2>
               <textarea
                 className="min-h-40 w-full rounded-md border border-border bg-background p-3 text-sm leading-6"
                 maxLength={20000}
@@ -170,9 +181,26 @@ export function AdminChatbotPanel({ users }: { users: AdminUser[] }) {
                 onChange={(event) => setInstruction(event.target.value)}
                 placeholder="No additional instructions"
               />
+              <label className="mt-4 grid max-w-sm gap-1.5 text-sm font-medium">
+                Daily token limit
+                <input
+                  className={fieldClass}
+                  type="number"
+                  min={0}
+                  max={10000000}
+                  step={1}
+                  value={dailyTokenLimit}
+                  onChange={(event) => setDailyTokenLimit(event.target.value)}
+                  placeholder="Unlimited"
+                />
+                <span className="text-xs font-normal text-muted-foreground">
+                  Blank means unlimited; 0 blocks chat requests. {data.tokenUsage.date} UTC usage: {data.tokenUsage.used.toLocaleString()} used
+                  {data.tokenUsage.reserved ? `, ${data.tokenUsage.reserved.toLocaleString()} reserved` : ""}.
+                </span>
+              </label>
               <div className="mt-3 flex items-center justify-between">
                 <span className="text-xs text-muted-foreground">{instruction.length} characters (20 KB maximum)</span>
-                <button className={buttonClass} disabled={busy} onClick={saveInstruction}>Save instructions</button>
+                <button className={buttonClass} disabled={busy} onClick={saveInstruction}>Save settings</button>
               </div>
             </div>
             <div className="rounded-lg border border-border bg-card p-4">

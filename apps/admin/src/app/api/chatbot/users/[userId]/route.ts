@@ -16,12 +16,15 @@ export async function GET(request: Request, { params }: { params: Promise<{ user
   }
 
   const supabase = createChatbotAdminClient();
-  const [settingsResult, sourcesResult] = await Promise.all([
-    supabase.from("chatbot_user_settings").select("instruction").eq("user_id", userId).maybeSingle(),
+  const usageDate = new Date().toISOString().slice(0, 10);
+  const [settingsResult, sourcesResult, usageResult] = await Promise.all([
+    supabase.from("chatbot_user_settings").select("instruction, daily_token_limit").eq("user_id", userId).maybeSingle(),
     supabase.from("chatbot_source_files").select("id, file_name, mime_type, byte_size, created_at")
       .eq("user_id", userId).order("created_at", { ascending: false }),
+    supabase.from("chatbot_daily_token_usage").select("used_tokens, reserved_tokens")
+      .eq("user_id", userId).eq("usage_date", usageDate).maybeSingle(),
   ]);
-  if (settingsResult.error || sourcesResult.error) {
+  if (settingsResult.error || sourcesResult.error || usageResult.error) {
     return Response.json({ error: "Could not load chatbot data" }, { status: 500 });
   }
   const conversations: { id: string; title: string; created_at: string; updated_at: string }[] = [];
@@ -37,6 +40,12 @@ export async function GET(request: Request, { params }: { params: Promise<{ user
   }
   return Response.json({
     instruction: settingsResult.data?.instruction ?? "",
+    dailyTokenLimit: settingsResult.data?.daily_token_limit ?? null,
+    tokenUsage: {
+      used: Number(usageResult.data?.used_tokens ?? 0),
+      reserved: Number(usageResult.data?.reserved_tokens ?? 0),
+      date: usageDate,
+    },
     sources: sourcesResult.data,
     conversations,
   });

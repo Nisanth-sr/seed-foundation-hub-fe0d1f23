@@ -29,9 +29,12 @@ The existing admin app also needs its normal Supabase environment variables, inc
 
 ## Database migration
 
-Apply **only** `apps/chatbot/supabase/migrations/20261112000100_chatbot.sql` to the existing Supabase project before starting the app. It creates the chatbot-specific settings, source files, conversations, messages, and activity-log tables, indexes, grants, and row-level security policies. It does not alter existing application tables.
+Apply only the chatbot migrations, in filename order, to the existing Supabase project before starting the app:
 
-For a manual, single-migration rollout, open the Supabase project's SQL Editor, paste the contents of that migration, and run it against the intended project. Do not run the main application's migration directory as part of chatbot setup. This project does not run migrations automatically.
+1. `apps/chatbot/supabase/migrations/20261112000100_chatbot.sql` creates the chatbot settings, source files, conversations, messages, activity-log tables, indexes, grants, and ownership policies.
+2. `apps/chatbot/supabase/migrations/20261112000200_chatbot_daily_token_limits.sql` adds the per-user daily token limit, private usage ledger, and atomic token reservation/settlement functions.
+
+For a manual rollout, open the Supabase project's SQL Editor and run each file in order against the intended project. Do not run the main application's migration directory as part of chatbot setup. These migrations do not alter existing application tables; the app does not run migrations automatically.
 
 ## Run locally
 
@@ -52,3 +55,5 @@ The admin app remains a separate deployment and must have the same Supabase URL,
 ## Upload limits and privacy
 
 Only UTF-8 `.txt`, `.md`, `.csv`, and `.json` files are accepted, with a 128 KiB per-file maximum, 20-file limit, and 256 KiB combined limit per user. Uploaded text is stored in the chatbot source table and added to that user's server-built system prompt. The chat UI has no instruction or source-file controls. Every user conversation query includes the authenticated owner's ID, and database policies also scope conversation and message access to `auth.uid()`.
+
+Admins can set an optional per-user daily token limit in the chatbot management page. A blank limit is unlimited; zero blocks chat requests. Usage counts OpenRouter prompt and completion tokens by UTC calendar day. Requests atomically reserve an estimated prompt budget and available completion allowance so concurrent calls account for outstanding reservations. Final provider-reported usage is recorded when the stream completes; an estimate is recorded if the provider omits usage data. Conversation lists load 30 items at a time and conversation messages load 50 at a time, with controls to fetch older items.

@@ -9,20 +9,28 @@ type Message = { id: string; role: "user" | "assistant"; content: string };
 
 export function ChatClient({ email }: { email: string }) {
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [hasMoreConversations, setHasMoreConversations] = useState(false);
+  const [loadingConversations, setLoadingConversations] = useState(false);
   const [activeId, setActiveId] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
+  const [hasMoreMessages, setHasMoreMessages] = useState(false);
+  const [loadingMessages, setLoadingMessages] = useState(false);
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const suppressAutoScroll = useRef(false);
+  const activeConversationRef = useRef("");
+  const conversationLoadId = useRef(0);
 
   const refreshConversations = useCallback(async () => {
-    const response = await fetch("/api/conversations");
+    const response = await fetch("/api/conversations?offset=0");
     if (!response.ok) throw new Error("Could not load conversations");
-    const data = await response.json() as { conversations: Conversation[] };
+    const data = await response.json() as { conversations: Conversation[]; hasMore: boolean };
     setConversations(data.conversations);
+    setHasMoreConversations(data.hasMore);
   }, []);
 
   useEffect(() => {
@@ -30,26 +38,82 @@ export function ChatClient({ email }: { email: string }) {
   }, [refreshConversations]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (!suppressAutoScroll.current) messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   async function openConversation(id: string) {
+    const requestId = ++conversationLoadId.current;
     setError("");
+    activeConversationRef.current = id;
     setActiveId(id);
+    setMessages([]);
+    setHasMoreMessages(false);
     setSidebarOpen(false);
+    setLoadingMessages(true);
     try {
-      const response = await fetch(`/api/conversations/${id}`);
+      const response = await fetch(`/api/conversations/${id}?offset=0`);
       if (!response.ok) throw new Error("Could not load this conversation");
-      const data = await response.json() as { messages: Message[] };
-      setMessages(data.messages);
+      const data = await response.json() as { messages: Message[]; hasMore: boolean };
+      if (requestId === conversationLoadId.current) {
+        setMessages(data.messages);
+        setHasMoreMessages(data.hasMore);
+      }
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Could not load conversation");
+      if (requestId === conversationLoadId.current) {
+        setError(cause instanceof Error ? cause.message : "Could not load conversation");
+      }
+    } finally {
+      if (requestId === conversationLoadId.current) setLoadingMessages(false);
+    }
+  }
+
+  async function loadOlderConversations() {
+    if (loadingConversations || !hasMoreConversations) return;
+    setLoadingConversations(true);
+    try {
+      const response = await fetch(`/api/conversations?offset=${conversations.length}`);
+      if (!response.ok) throw new Error("Could not load older conversations");
+      const data = await response.json() as { conversations: Conversation[]; hasMore: boolean };
+      setConversations((current) => [...current, ...data.conversations]);
+      setHasMoreConversations(data.hasMore);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Could not load older conversations");
+    } finally {
+      setLoadingConversations(false);
+    }
+  }
+
+  async function loadOlderMessages() {
+    if (!activeId || loadingMessages || !hasMoreMessages) return;
+    const conversationId = activeId;
+    setLoadingMessages(true);
+    setError("");
+    try {
+      const response = await fetch(`/api/conversations/${conversationId}?offset=${messages.length}`);
+      if (!response.ok) throw new Error("Could not load older messages");
+      const data = await response.json() as { messages: Message[]; hasMore: boolean };
+      if (activeConversationRef.current !== conversationId) return;
+      suppressAutoScroll.current = true;
+      setMessages((current) => [...data.messages, ...current]);
+      setHasMoreMessages(data.hasMore);
+      window.setTimeout(() => { suppressAutoScroll.current = false; }, 0);
+    } catch (cause) {
+      suppressAutoScroll.current = false;
+      if (activeConversationRef.current === conversationId) {
+        setError(cause instanceof Error ? cause.message : "Could not load older messages");
+      }
+    } finally {
+      if (activeConversationRef.current === conversationId) setLoadingMessages(false);
     }
   }
 
   function startNewChat() {
+    conversationLoadId.current += 1;
+    activeConversationRef.current = "";
     setActiveId("");
     setMessages([]);
+    setHasMoreMessages(false);
+    setLoadingMessages(false);
     setDraft("");
     setError("");
     setSidebarOpen(false);
@@ -98,7 +162,10 @@ export function ChatClient({ email }: { email: string }) {
           if (!line) continue;
           const data = JSON.parse(line.slice(6)) as { delta?: string; conversationId?: string; error?: string; done?: boolean };
           if (data.error) throw new Error(data.error);
-          if (data.conversationId) setActiveId(data.conversationId);
+          if (data.conversationId) {
+            activeConversationRef.current = data.conversationId;
+            setActiveId(data.conversationId);
+          }
           if (data.delta) {
             responseText += data.delta;
             setMessages((current) => current.map((item) => item.id === assistant.id ? { ...item, content: responseText } : item));
@@ -126,6 +193,11 @@ export function ChatClient({ email }: { email: string }) {
               {conversation.title || "New conversation"}
             </button>
           ))}
+              {hasMoreConversations && (
+                <button className="conversation" onClick={loadOlderConversations} disabled={loadingConversations}>
+                  {loadingConversations ? "Loading…" : "Load older conversations"}
+                </button>
+              )}
         </div>
         <div className="sidebar-bottom">{email}<button className="link-button" style={{ float: "right" }} onClick={signOut}>Sign out</button></div>
       </aside>
@@ -138,7 +210,9 @@ export function ChatClient({ email }: { email: string }) {
           <span>Private conversation</span>
         </header>
         <section className="chat-content">
-          {messages.length === 0 ? (
+          {loadingMessages && messages.length === 0 ? (
+            <div className="welcome"><p>Loading conversation…</p></div>
+          ) : messages.length === 0 ? (
             <div className="welcome">
               <Sparkles className="welcome-mark" size={27} strokeWidth={1.5} />
               <h1>What would you like to work on?</h1>
@@ -146,6 +220,11 @@ export function ChatClient({ email }: { email: string }) {
             </div>
           ) : (
             <div className="messages">
+              {hasMoreMessages && (
+                <button className="link-button" onClick={loadOlderMessages} disabled={loadingMessages}>
+                  {loadingMessages ? "Loading older messages…" : "Load older messages"}
+                </button>
+              )}
               {messages.map((message) => message.role === "user" ? (
                 <div key={message.id} className="message user"><div className="message-text">{message.content}</div></div>
               ) : (
