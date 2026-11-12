@@ -25,6 +25,29 @@ export async function GET(request: Request, { params }: { params: Promise<{ user
       .eq("user_id", userId).eq("usage_date", usageDate).maybeSingle(),
   ]);
   if (settingsResult.error || sourcesResult.error || usageResult.error) {
+    const schemaErrorCodes = new Set<string>(["42P01", "42703", "PGRST204", "PGRST205"]);
+    const queryErrors = [
+      ["chatbot_user_settings", settingsResult.error],
+      ["chatbot_source_files", sourcesResult.error],
+      ["chatbot_daily_token_usage", usageResult.error],
+    ] as const;
+    for (const [table, error] of queryErrors) {
+      if (error) {
+        console.error("Could not load chatbot admin data", {
+          table,
+          code: error.code,
+          message: error.message,
+        });
+      }
+    }
+    const missingSchema = queryErrors.some(([, error]) => (
+      error && schemaErrorCodes.has(error.code)
+    ));
+    if (missingSchema) {
+      return Response.json({
+        error: "Chatbot database migrations are missing or incomplete. Apply the chatbot migrations in apps/chatbot/supabase/migrations in timestamp order, then retry.",
+      }, { status: 503 });
+    }
     return Response.json({ error: "Could not load chatbot data" }, { status: 500 });
   }
   const conversations: { id: string; title: string; created_at: string; updated_at: string }[] = [];
