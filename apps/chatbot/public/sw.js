@@ -1,10 +1,11 @@
-const CACHE_NAME = "seed-chat-static-v1";
+const CACHE_NAME = "seed-chat-static-v2";
 const OFFLINE_URL = "/offline.html";
 const PRECACHE_URLS = [
   OFFLINE_URL,
   "/icons/icon-192.png",
   "/icons/icon-512.png",
   "/icons/icon-512-maskable.png",
+  "/opening.gif",
 ];
 
 self.addEventListener("install", (event) => {

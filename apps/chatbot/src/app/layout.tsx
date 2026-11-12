@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import { PwaOpeningSplash } from "@/components/pwa-opening-splash";
 import { ServiceWorkerRegistration } from "@/components/service-worker-registration";
 import "./globals.css";
 
@@ -39,6 +40,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en" className={inter.variable}>
       <body>
         <ServiceWorkerRegistration />
+        <PwaOpeningSplash />
         {children}
       </body>
     </html>
