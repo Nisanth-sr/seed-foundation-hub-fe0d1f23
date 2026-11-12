@@ -9,6 +9,7 @@ type ConversationMessage = { id: string; role: string; content: string; created_
 type UserData = {
   instruction: string;
   dailyTokenLimit: number | null;
+  accessEnabled: boolean;
   tokenUsage: { used: number; reserved: number; date: string };
   sources: SourceFile[];
   conversations: Conversation[];
@@ -20,6 +21,7 @@ export function AdminChatbotPanel({ users }: { users: AdminUser[] }) {
   const [data, setData] = useState<UserData | null>(null);
   const [instruction, setInstruction] = useState("");
   const [dailyTokenLimit, setDailyTokenLimit] = useState("");
+  const [chatbotAccessEnabled, setChatbotAccessEnabled] = useState(false);
   const [selectedConversation, setSelectedConversation] = useState<ConversationData | null>(null);
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
@@ -36,6 +38,7 @@ export function AdminChatbotPanel({ users }: { users: AdminUser[] }) {
     setMessage("");
     setData(null);
     setInstruction("");
+    setChatbotAccessEnabled(false);
     setSelectedConversation(null);
     const query = new URLSearchParams();
     if (from) query.set("from", from);
@@ -48,6 +51,7 @@ export function AdminChatbotPanel({ users }: { users: AdminUser[] }) {
           setData(result);
           setInstruction(result.instruction);
           setDailyTokenLimit(result.dailyTokenLimit === null ? "" : String(result.dailyTokenLimit));
+          setChatbotAccessEnabled(result.accessEnabled);
         }
       })
       .catch((error: unknown) => {
@@ -69,6 +73,7 @@ export function AdminChatbotPanel({ users }: { users: AdminUser[] }) {
         body: JSON.stringify({
           instruction,
           dailyTokenLimit: dailyTokenLimit.trim() === "" ? null : Number(dailyTokenLimit),
+          chatbotAccessEnabled,
         }),
       });
       const result = await response.json() as { error?: string };
@@ -181,6 +186,18 @@ export function AdminChatbotPanel({ users }: { users: AdminUser[] }) {
                 onChange={(event) => setInstruction(event.target.value)}
                 placeholder="No additional instructions"
               />
+              <label className="mt-4 flex items-center gap-2 text-sm font-medium">
+                <input
+                  className="size-4 accent-primary"
+                  type="checkbox"
+                  checked={chatbotAccessEnabled}
+                  onChange={(event) => setChatbotAccessEnabled(event.target.checked)}
+                />
+                Allow access to chat.seedfound.org
+              </label>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Disabled users are blocked from chatbot pages and APIs; their SEED Foundation account remains active.
+              </p>
               <label className="mt-4 grid max-w-sm gap-1.5 text-sm font-medium">
                 Daily token limit
                 <input

@@ -18,7 +18,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ user
   const supabase = createChatbotAdminClient();
   const usageDate = new Date().toISOString().slice(0, 10);
   const [settingsResult, sourcesResult, usageResult] = await Promise.all([
-    supabase.from("chatbot_user_settings").select("instruction, daily_token_limit").eq("user_id", userId).maybeSingle(),
+    supabase.from("chatbot_user_settings")
+      .select("instruction, daily_token_limit, chatbot_access_enabled").eq("user_id", userId).maybeSingle(),
     supabase.from("chatbot_source_files").select("id, file_name, mime_type, byte_size, created_at")
       .eq("user_id", userId).order("created_at", { ascending: false }),
     supabase.from("chatbot_daily_token_usage").select("used_tokens, reserved_tokens")
@@ -64,6 +65,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ user
   return Response.json({
     instruction: settingsResult.data?.instruction ?? "",
     dailyTokenLimit: settingsResult.data?.daily_token_limit ?? null,
+    accessEnabled: settingsResult.data?.chatbot_access_enabled ?? false,
     tokenUsage: {
       used: Number(usageResult.data?.used_tokens ?? 0),
       reserved: Number(usageResult.data?.reserved_tokens ?? 0),

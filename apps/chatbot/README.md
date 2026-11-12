@@ -61,3 +61,5 @@ Assistant replies render GitHub-flavored Markdown, including tables, lists, and 
 ## Progressive Web App
 
 The app includes an installable web manifest, 192/512 pixel Seed logo icons (including a maskable Android icon), Apple web-app metadata, and a service worker. Serve the deployed app over HTTPS (Vercel does this for `chat.seedfound.org`) for installation. Use the browser's install prompt, or on iOS choose **Share → Add to Home Screen**. The worker caches only versioned Next.js static assets and app icons; it never caches authenticated pages, API responses, or chat data. When offline, it displays a small static reconnect screen rather than previously viewed private content.
+
+Admins can allow or deny chatbot access per user from **Admin → Chatbot → select a user → Allow access to chat.seedfound.org**. Access is denied by default. Apply `20261112000300_chatbot_user_access.sql` after the earlier chatbot migrations. The same Supabase account remains active for the main SEED app when chatbot access is disabled.
