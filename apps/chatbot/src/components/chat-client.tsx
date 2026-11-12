@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowUp, Menu, Plus, Sparkles } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 type Conversation = { id: string; title: string; updated_at: string };
@@ -228,7 +230,14 @@ export function ChatClient({ email }: { email: string }) {
               {messages.map((message) => message.role === "user" ? (
                 <div key={message.id} className="message user"><div className="message-text">{message.content}</div></div>
               ) : (
-                <div key={message.id} className="message assistant"><span className="assistant-mark">S</span><div className="message-text">{message.content || (busy ? "…" : "")}</div></div>
+                <div key={message.id} className="message assistant">
+                  <span className="assistant-mark">S</span>
+                  <div className="message-text">
+                    {message.content
+                      ? <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
+                      : busy ? "…" : ""}
+                  </div>
+                </div>
               ))}
               <div ref={messagesEndRef} />
             </div>
