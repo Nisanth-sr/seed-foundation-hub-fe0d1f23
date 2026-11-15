@@ -13,6 +13,13 @@ type OpenRouterEvent = {
   choices?: Array<{ delta?: { content?: string | Array<{ text?: string }> } }>;
   usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number } | null;
 };
+type OpenRouterErrorResponse = {
+  error?: {
+    code?: string | number;
+    type?: string;
+    metadata?: { provider_name?: string };
+  };
+};
 
 const MAX_COMPLETION_TOKENS = 8000;
 const CHAT_PAGE_SIZE = 50;
@@ -176,31 +183,66 @@ export async function POST(request: Request) {
   }
   await logActivity(admin, user.id, resolvedConversationId, "chat_started", {});
 
-  const upstream = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-      "HTTP-Referer": process.env.NEXT_PUBLIC_CHATBOT_URL || "http://localhost:3002",
-      "X-Title": "SEED Assistant",
-    },
-    body: JSON.stringify({
+  let upstream: Response | null = null;
+  try {
+    upstream = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": process.env.NEXT_PUBLIC_CHATBOT_URL || "http://localhost:3002",
+        "X-Title": "SEED Assistant",
+      },
+      body: JSON.stringify({
+        model,
+        messages,
+        max_tokens: maxCompletionTokens,
+        stream: true,
+        stream_options: { include_usage: true },
+      }),
+      signal: request.signal,
+    });
+  } catch (error) {
+    console.error("OpenRouter request failed before receiving a response", {
       model,
-      messages,
-      max_tokens: maxCompletionTokens,
-      stream: true,
-      stream_options: { include_usage: true },
-    }),
-    signal: request.signal,
-  }).catch(() => null);
+      errorType: error instanceof Error ? error.name : "UnknownError",
+    });
+  }
   const upstreamBody = upstream?.body;
   if (!upstream?.ok || !upstreamBody) {
+    let providerError: OpenRouterErrorResponse["error"];
+    if (upstream && !upstream.ok) {
+      try {
+        const body = await upstream.json() as OpenRouterErrorResponse;
+        providerError = body.error;
+      } catch {
+        providerError = undefined;
+      }
+    }
+    console.error("OpenRouter rejected the chat completion request", {
+      model,
+      status: upstream?.status ?? 0,
+      providerCode: providerError?.code ?? null,
+      providerType: providerError?.type ?? null,
+      provider: providerError?.metadata?.provider_name ?? null,
+    });
     await settleTokens(0);
     await logActivity(admin, user.id, resolvedConversationId, "chat_failed", {
       reason: "upstream_unavailable",
       status: upstream?.status ?? 0,
     });
-    return Response.json({ error: "The assistant is temporarily unavailable" }, { status: 502 });
+    const errorMessage = upstream?.status === 401
+      ? "The assistant's OpenRouter credentials were rejected. Please contact an administrator."
+      : upstream?.status === 402
+        ? "The assistant's OpenRouter account has no available quota or credits. Please contact an administrator."
+        : upstream?.status === 404
+          ? "The configured OpenRouter model is unavailable. Please contact an administrator."
+          : upstream?.status === 429
+            ? "The assistant is receiving too many requests. Please try again shortly."
+            : upstream?.status === 400
+              ? "The configured OpenRouter model rejected this request. Please contact an administrator."
+              : "The assistant is temporarily unavailable. Please try again shortly.";
+    return Response.json({ error: errorMessage }, { status: 502 });
   }
 
   const stream = new ReadableStream<Uint8Array>({

@@ -23,6 +23,8 @@ Create `apps/chatbot/.env.local` from `.env.example`:
 
 Set the same Supabase URL and publishable key used by the main site. Set `SUPABASE_SERVICE_ROLE_KEY` only in server environments. The OpenRouter key, model, service-role key, user's instruction, source text, and assembled system prompt are not sent to the browser.
 
+If chat reports an OpenRouter configuration or availability error, verify the exact `OPENROUTER_MODEL` ID in OpenRouter's model catalog, confirm the deployed `OPENROUTER_API_KEY` can use it, and check the OpenRouter account's free-model quota/rate limits. The chat API records the provider's HTTP status, error code/type, model, and provider name in server logs without logging the key, prompt, or provider response text.
+
 If your hosting dashboard does not accept `NEXT_PUBLIC_` environment variable names, set `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` instead (or use `SUPABASE_ANON_KEY` for the legacy anon key). The app exposes only the Supabase URL and publishable/anon key through a public config endpoint for browser sign-in; these values are intended to be public. Never expose `SUPABASE_SERVICE_ROLE_KEY`.
 
 The existing admin app also needs its normal Supabase environment variables, including `SUPABASE_SERVICE_ROLE_KEY`, to serve chatbot management APIs.
