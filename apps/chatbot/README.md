@@ -7,6 +7,7 @@ This is a standalone Next.js application that shares the main SEED Supabase Auth
 - Node.js 22.x and npm
 - Access to the SEED Supabase project
 - An OpenRouter API key and a model available to that key
+- A Google Cloud Translation API key to enable Tamil translations
 
 ## Environment
 
@@ -19,9 +20,12 @@ Create `apps/chatbot/.env.local` from `.env.example`:
 | `SUPABASE_SERVICE_ROLE_KEY` | Yes | Server-only database access; never use a `NEXT_PUBLIC_` prefix |
 | `OPENROUTER_API_KEY` | Yes | Server-only OpenRouter credential |
 | `OPENROUTER_MODEL` | Yes | OpenRouter model identifier |
+| `GOOGLE_TRANSLATE_API_KEY` | No | Server-only Google Cloud Translation API key for Tamil translations |
 | `NEXT_PUBLIC_CHATBOT_URL` | No | App URL sent as the OpenRouter request referrer; defaults to `http://localhost:3002` |
 
 Set the same Supabase URL and publishable key used by the main site. Set `SUPABASE_SERVICE_ROLE_KEY` only in server environments. The OpenRouter key, model, service-role key, user's instruction, source text, and assembled system prompt are not sent to the browser.
+
+To enable Tamil translation, create a Google Cloud API key with the Cloud Translation API enabled and set it as `GOOGLE_TRANSLATE_API_KEY` in the server environment. The chatbot sends completed assistant responses to Google only when a user requests translation. This credential is used exclusively by the authenticated server endpoint and is never exposed to the browser.
 
 If chat reports an OpenRouter configuration or availability error, verify the exact `OPENROUTER_MODEL` ID in OpenRouter's model catalog, confirm the deployed `OPENROUTER_API_KEY` can use it, and check the OpenRouter account's free-model quota/rate limits. The chat API records the provider's HTTP status, error code/type, model, and provider name in server logs without logging the key, prompt, or provider response text.
 

@@ -1,13 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowUp, Menu, Plus, Sparkles, X } from "lucide-react";
+import { ArrowUp, Languages, LoaderCircle, Menu, Plus, Sparkles, X } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 type Conversation = { id: string; title: string; updated_at: string };
 type Message = { id: string; role: "user" | "assistant"; content: string };
+type MessageTranslation = { text?: string; loading?: boolean; showing?: boolean; error?: string };
 
 export function ChatClient({ email }: { email: string }) {
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -20,6 +21,8 @@ export function ChatClient({ email }: { email: string }) {
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [translations, setTranslations] = useState<Record<string, MessageTranslation>>({});
+  const [streamingMessageId, setStreamingMessageId] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -58,6 +61,7 @@ export function ChatClient({ email }: { email: string }) {
     activeConversationRef.current = id;
     setActiveId(id);
     setMessages([]);
+    setTranslations({});
     setHasMoreMessages(false);
     setSidebarOpen(false);
     setLoadingMessages(true);
@@ -123,6 +127,7 @@ export function ChatClient({ email }: { email: string }) {
     activeConversationRef.current = "";
     setActiveId("");
     setMessages([]);
+    setTranslations({});
     setHasMoreMessages(false);
     setLoadingMessages(false);
     setDraft("");
@@ -146,6 +151,7 @@ export function ChatClient({ email }: { email: string }) {
     setBusy(true);
     const optimistic: Message = { id: crypto.randomUUID(), role: "user", content };
     const assistant: Message = { id: crypto.randomUUID(), role: "assistant", content: "" };
+    setStreamingMessageId(assistant.id);
     setMessages((current) => [...current, optimistic, assistant]);
 
     try {
@@ -188,7 +194,45 @@ export function ChatClient({ email }: { email: string }) {
       setMessages((current) => current.filter((item) => item.id !== assistant.id));
       setError(cause instanceof Error ? cause.message : "The assistant could not respond");
     } finally {
+      setStreamingMessageId("");
       setBusy(false);
+    }
+  }
+
+  async function translateMessage(message: Message) {
+    const existing = translations[message.id];
+    if (existing?.loading) return;
+    if (existing?.text) {
+      setTranslations((current) => ({
+        ...current,
+        [message.id]: { ...current[message.id], showing: !current[message.id]?.showing },
+      }));
+      return;
+    }
+
+    setTranslations((current) => ({ ...current, [message.id]: { loading: true } }));
+    try {
+      const response = await fetch("/api/translate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: message.content }),
+      });
+      const data = await response.json() as { translatedText?: string; error?: string };
+      if (!response.ok || !data.translatedText) {
+        throw new Error(data.error ?? "Could not translate this response. Please try again.");
+      }
+      setTranslations((current) => ({
+        ...current,
+        [message.id]: { text: data.translatedText, showing: true },
+      }));
+    } catch (cause) {
+      setTranslations((current) => ({
+        ...current,
+        [message.id]: {
+          loading: false,
+          error: cause instanceof Error ? cause.message : "Could not translate this response. Please try again.",
+        },
+      }));
     }
   }
 
@@ -261,18 +305,39 @@ export function ChatClient({ email }: { email: string }) {
               ) : (
                 <div key={message.id} className="message assistant">
                   <span className="assistant-mark">S</span>
-                  <div className="message-text">
-                    {message.content
-                      ? <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
-                      : busy ? (
-                        <span className="thinking-wave" role="status" aria-label="Thinking..">
-                          {"Thinking..".split("").map((character, index) => (
-                            <span key={index} aria-hidden="true" style={{ animationDelay: `${index * 55}ms` }}>
-                              {character}
-                            </span>
-                          ))}
-                        </span>
-                      ) : ""}
+                  <div className="assistant-message-content">
+                    <div className="message-text">
+                      {message.content
+                        ? <ReactMarkdown remarkPlugins={[remarkGfm]}>{translations[message.id]?.showing ? translations[message.id]?.text ?? message.content : message.content}</ReactMarkdown>
+                        : busy ? (
+                          <span className="thinking-wave" role="status" aria-label="Thinking..">
+                            {"Thinking..".split("").map((character, index) => (
+                              <span key={index} aria-hidden="true" style={{ animationDelay: `${index * 55}ms` }}>
+                                {character}
+                              </span>
+                            ))}
+                          </span>
+                        ) : ""}
+                    </div>
+                    {message.content && message.id !== streamingMessageId && (
+                      <div className="translation-controls">
+                        <button
+                          className="translation-button"
+                          type="button"
+                          onClick={() => void translateMessage(message)}
+                          disabled={translations[message.id]?.loading}
+                          aria-label={translations[message.id]?.showing ? "Show original response" : "Translate response to Tamil"}
+                          title={translations[message.id]?.showing ? "Show original" : "Translate to Tamil"}
+                        >
+                          {translations[message.id]?.loading
+                            ? <span role="status"><LoaderCircle size={14} className="translation-spinner" /> Translating…</span>
+                            : <><Languages size={14} /> {translations[message.id]?.showing ? "Show original" : "Translate to Tamil"}</>}
+                        </button>
+                        {translations[message.id]?.error && (
+                          <span className="translation-error" role="alert">{translations[message.id].error}</span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
