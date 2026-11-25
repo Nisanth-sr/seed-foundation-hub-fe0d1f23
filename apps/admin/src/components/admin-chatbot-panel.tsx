@@ -153,13 +153,17 @@ export function AdminChatbotPanel({ users }: { users: AdminUser[] }) {
     window.location.assign(`/api/chatbot/export?${query.toString()}`);
   }
 
+  function downloadAll() {
+    window.location.assign("/api/chatbot/export/all");
+  }
+
   const fieldClass = "rounded-md border border-border bg-background px-3 py-2 text-sm";
   const buttonClass = "rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50";
 
   return (
     <div className="space-y-5">
       {message && <p className="rounded-md border border-border bg-background px-3 py-2 text-sm" role="status">{message}</p>}
-      <div className="grid gap-3 rounded-lg border border-border bg-card p-4 md:grid-cols-[minmax(220px,1fr)_180px_180px_auto_auto] md:items-end">
+      <div className="grid gap-3 rounded-lg border border-border bg-card p-4 md:grid-cols-[minmax(220px,1fr)_180px_180px_auto_auto_auto] md:items-end">
         <label className="grid gap-1.5 text-sm font-medium">
           User
           <select className={fieldClass} value={selectedUserId} onChange={(event) => setSelectedUserId(event.target.value)}>
@@ -170,6 +174,7 @@ export function AdminChatbotPanel({ users }: { users: AdminUser[] }) {
         <label className="grid gap-1.5 text-sm font-medium">To<input className={fieldClass} type="date" value={to} onChange={(event) => setTo(event.target.value)} /></label>
         <button className={fieldClass} disabled={!selectedUserId} onClick={() => download("csv")}>Download CSV</button>
         <button className={fieldClass} disabled={!selectedUserId} onClick={() => download("json")}>Download JSON</button>
+        <button className={buttonClass} onClick={downloadAll}>Download all JSON</button>
       </div>
 
       {!users.length && <p className="text-sm text-muted-foreground">No accounts are available.</p>}
